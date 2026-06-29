@@ -11,7 +11,7 @@ Windows Host
         ├─ scrape http://127.0.0.1:9182/metrics
         ├─ normalize windows_* metrics
         ├─ enrich asset metadata
-        └─ expose http://0.0.0.0:9200/metrics
+        └─ expose http://0.0.0.0:9527/metrics
 
 Linux Host
   ├─ node_exporter
@@ -19,7 +19,7 @@ Linux Host
         ├─ scrape http://127.0.0.1:9100/metrics
         ├─ normalize node_* metrics
         ├─ enrich asset metadata
-        └─ expose http://0.0.0.0:9200/metrics
+        └─ expose http://0.0.0.0:9527/metrics
 ```
 
 ### 4.2 Prometheus scrape
@@ -28,7 +28,7 @@ Prometheus 不直接 scrape `windows_exporter` / `node_exporter`，改為 scrape
 
 ```text
 Prometheus
-  └─ scrape host-metrics-normalizer:9200/metrics
+  └─ scrape host-metrics-normalizer:9527/metrics
 
 Grafana
   └─ query Prometheus with host_* metrics

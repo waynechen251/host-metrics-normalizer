@@ -48,7 +48,7 @@ owner
 host_normalizer_info{version="0.1.0", config_version="manual"} 1
 host_normalizer_up 1
 host_normalizer_scrape_duration_seconds 0.123
-host_normalizer_last_scrape_timestamp_seconds 1782739200
+host_normalizer_last_scrape_timestamp_seconds 1782739527
 host_normalizer_last_scrape_success 1
 host_normalizer_errors_total 0
 host_metrics_stale 0

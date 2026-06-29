@@ -11,11 +11,11 @@
 ```text
 Windows Host
   ├─ windows_exporter
-  └─ host-metrics-normalizer  →  http://0.0.0.0:9200/metrics
+  └─ host-metrics-normalizer  →  http://0.0.0.0:9527/metrics
 
 Linux Host
   ├─ node_exporter
-  └─ host-metrics-normalizer  →  http://0.0.0.0:9200/metrics
+  └─ host-metrics-normalizer  →  http://0.0.0.0:9527/metrics
 
 Prometheus  → 只 scrape host-metrics-normalizer
 Grafana     → 只查詢 host_* 指標
@@ -41,7 +41,7 @@ python -m host_metrics_normalizer --config /path/to/config.yml
 ```yaml
 server:
   listen_address: "0.0.0.0"
-  listen_port: 9200
+  listen_port: 9527
 
 source_exporter:
   type: "windows_exporter"

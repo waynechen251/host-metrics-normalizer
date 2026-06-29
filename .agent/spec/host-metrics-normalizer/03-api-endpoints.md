@@ -25,7 +25,7 @@
   "version": "0.1.0",
   "source_exporter_up": true,
   "last_scrape_success": true,
-  "last_scrape_timestamp": 1782739200
+  "last_scrape_timestamp": 1782739527
 }
 ```
 

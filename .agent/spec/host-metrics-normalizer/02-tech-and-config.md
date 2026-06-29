@@ -70,7 +70,7 @@ Linux：
 ```yaml
 server:
   listen_address: "0.0.0.0"
-  listen_port: 9200
+  listen_port: 9527
   metrics_path: "/metrics"
   health_path: "/healthz"
   debug_enabled: true
