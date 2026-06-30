@@ -26,10 +26,9 @@ psutil
 
 Metrics 解析應優先使用結構化解析（例如 `prometheus_client.parser`），避免使用脆弱的全文字 regex 抓取數值。
 
-後續若需要更容易打包單一執行檔，可評估：
+Windows 已提供 PyInstaller onefile 打包（見 `packaging/windows/`），可產出單一 `host-metrics-normalizer.exe`，不需另外安裝 Python 環境。後續若需要其他打包方式，可評估：
 
 ```text
-PyInstaller
 Nuitka
 .NET
 Go
@@ -53,6 +52,8 @@ Linux：
 
 預設路徑：
 
+以原始碼或 pip 套件執行（`python -m host_metrics_normalizer`）：
+
 Windows：
 
 ```text
@@ -64,6 +65,14 @@ Linux：
 ```text
 /etc/host-metrics-normalizer/config.yml
 ```
+
+以打包後的 Windows exe 執行（`host-metrics-normalizer.exe`，未指定 `--config` 時）：
+
+```text
+<exe 所在目錄>\config.yml
+```
+
+即執行檔與設定檔放同一目錄即可，不需安裝到 `C:\Program Files`。`--config` 明確指定時優先於以上所有預設值。
 
 ### 6.1 config.yml 範例
 

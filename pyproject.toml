@@ -17,6 +17,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest"]
+build = ["pyinstaller"]
 
 [project.scripts]
 host-metrics-normalizer = "host_metrics_normalizer.main:main"

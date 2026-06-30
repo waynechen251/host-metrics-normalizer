@@ -20,6 +20,9 @@ DEFAULT_CONFIG_LINUX = "/etc/host-metrics-normalizer/config.yml"
 
 
 def _default_config_path() -> str:
+    if getattr(sys, "frozen", False):
+        # Packaged PyInstaller exe: default to config.yml next to the executable.
+        return os.path.join(os.path.dirname(sys.executable), "config.yml")
     return DEFAULT_CONFIG_WINDOWS if os.name == "nt" else DEFAULT_CONFIG_LINUX
 
 

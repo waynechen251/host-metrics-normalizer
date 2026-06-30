@@ -44,7 +44,7 @@
 
 ### Phase 5: 打包與部署
 
-1. Windows zip package。
+1. ~~Windows zip package。~~ 已提前實作：PyInstaller onefile 打包（`packaging/windows/`），產出單一 `host-metrics-normalizer.exe`，未指定 `--config` 時預設讀取 exe 同目錄的 `config.yml`（見 [02-tech-and-config.md](02-tech-and-config.md) §6）。
 2. NSSM install script。
 3. Linux tarball。
 4. systemd unit file。
