@@ -1,0 +1,25 @@
+# HELP go_build_info Build information about the main Go module.
+# TYPE go_build_info gauge
+go_build_info{checksum="",path="github.com/prometheus-community/windows_exporter",version="v0.31.6+dirty"} 1
+# HELP windows_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which windows_exporter was built, and the goos and goarch for the build.
+# TYPE windows_exporter_build_info gauge
+windows_exporter_build_info{branch="HEAD",goarch="amd64",goos="windows",goversion="go1.25.0",revision="20762588b37dd454e9e9a64e4efc3b469e44ce0a",tags="trimpath",version="0.31.6"} 1
+# HELP windows_exporter_collector_success collector_success
+# TYPE windows_exporter_collector_success gauge
+windows_exporter_collector_success{collector="cpu"} 1
+windows_exporter_collector_success{collector="memory"} 1
+windows_exporter_collector_success{collector="net"} 1
+windows_exporter_collector_success{collector="os"} 1
+# HELP windows_cpu_time_total Time that processor spent in different modes (idle, user, system, ...)
+# TYPE windows_cpu_time_total counter
+windows_cpu_time_total{core="0,0",mode="dpc"} 279.484375
+windows_cpu_time_total{core="0,0",mode="idle"} 6844.765625
+# HELP windows_memory_physical_total_bytes Total physical memory in bytes
+# TYPE windows_memory_physical_total_bytes gauge
+windows_memory_physical_total_bytes 1.7179869184e+10
+# HELP windows_os_info OperatingSystem.Caption, OperatingSystem.Version
+# TYPE windows_os_info gauge
+windows_os_info{build_number="19045",major_version="10",minor_version="0",product="Windows 10 Pro",revision="6466",version="10.0.19045"} 1
+# HELP windows_system_boot_time_timestamp Unix timestamp of system boot time
+# TYPE windows_system_boot_time_timestamp gauge
+windows_system_boot_time_timestamp 1.782815253304e+09

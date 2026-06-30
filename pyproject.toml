@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "host-metrics-normalizer"
+description = "Cross-platform host metrics normalization layer for Prometheus and Grafana."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+dynamic = ["version"]
+dependencies = [
+    "prometheus_client",
+    "PyYAML",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+host-metrics-normalizer = "host_metrics_normalizer.main:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "host_metrics_normalizer.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

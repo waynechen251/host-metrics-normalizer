@@ -25,15 +25,28 @@
   "version": "0.1.0",
   "source_exporter_up": true,
   "last_scrape_success": true,
-  "last_scrape_timestamp": 1782739527
+  "last_scrape_timestamp": 1782739527,
+  "exporter": "windows_exporter",
+  "exporter_version": "0.31.6",
+  "os_family": "windows"
 }
 ```
+
+`exporter` / `exporter_version` / `os_family` 為自動偵測結果（見 [02-tech-and-config.md](02-tech-and-config.md) §6.2），尚未偵測成功前固定為 `"unknown"` / `""` / `"unknown"`。
 
 ### 7.3 /debug/raw
 
 人工排查用。
 
-回傳最近一次抓到的原始 exporter metrics。
+回傳最近一次抓到的原始 exporter metrics（`Content-Type: text/plain`）。
+
+回應狀態：
+
+| 情境 | 狀態碼 |
+|---|---|
+| `debug_enabled: false` | 404（不揭露端點存在） |
+| 尚未有任何成功 scrape | 503（cache 尚無資料） |
+| 已有快取資料 | 200 + 原始 exposition 文字 |
 
 安全要求：
 

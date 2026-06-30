@@ -33,7 +33,7 @@
 
 1. 支援中央管理主機清單。
 2. 支援 asset metadata 從 Git repo / YAML inventory 載入。
-3. 支援自動偵測 OS 與 source exporter type。
+3. ~~支援自動偵測 OS 與 source exporter type。~~ 已於 Phase 1 實作：normalizer 從 `*_build_info` 自動判定 exporter type / version / os_family，不需手動配置；os_name 等更細緻的 OS 資訊仍待後續。
 4. 支援 Windows Event Log 基礎健康摘要。
 5. 支援 Linux systemd service 狀態摘要。
 6. 支援 Docker service inventory。

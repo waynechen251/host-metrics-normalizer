@@ -79,6 +79,8 @@ host_source_exporter_info{
 } 1
 ```
 
+`exporter` 與 `version` 來自自動偵測（見 [02-tech-and-config.md](02-tech-and-config.md) §6.2），非人工配置。在第一次成功偵測到 exporter 類型之前，**不輸出**任何帶 `exporter` label 的 `host_source_exporter_*` 系列，避免 Prometheus 殘留 `exporter="unknown"` 的過渡 time series。
+
 ### 9.3 Asset Info
 
 ```text

@@ -8,7 +8,7 @@ Prometheus scrape normalizer 時，normalizer 不應每次都即時同步抓 sou
 
 建議：
 
-1. background worker 定期抓 source exporter。
+1. background worker 定期抓 source exporter，抓取間隔採用 `cache.ttl_seconds`。
 2. `/metrics` 回傳最近一次成功標準化結果。
 3. 若資料超過 `stale_after_seconds`，輸出 `host_metrics_stale 1`。
 

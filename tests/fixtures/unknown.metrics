@@ -1,0 +1,6 @@
+# HELP go_build_info Build information about the main Go module.
+# TYPE go_build_info gauge
+go_build_info{checksum="",path="example.com/some_other_exporter",version="v1.0.0"} 1
+# HELP some_other_metric An unrelated metric with no recognizable build_info.
+# TYPE some_other_metric gauge
+some_other_metric 42

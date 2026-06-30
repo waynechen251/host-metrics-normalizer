@@ -76,10 +76,8 @@ server:
   debug_enabled: true
 
 source_exporter:
-  type: "windows_exporter"
   endpoint: "http://127.0.0.1:9182/metrics"
   timeout_seconds: 3
-  expected_version: "0.30.6"
 
 cache:
   enabled: true
@@ -117,16 +115,25 @@ normalization:
     - "^br-"
 ```
 
-### 6.2 source_exporter.type 支援值
+### 6.2 source_exporter 類型自動偵測
 
-MVP 支援：
+`source_exporter` 不需配置 `type`。normalizer 抓到 raw metrics 後，從中尋找 exporter 自帶的 `*_build_info` 來判定來源類型、版本與作業系統：
+
+```text
+windows_exporter_build_info{...,goos="windows",version="0.31.6"} 1  -> type=windows_exporter, os_family=windows
+node_exporter_build_info{...,goos="linux",version="1.8.2"} 1        -> type=node_exporter,    os_family=linux
+```
+
+MVP 支援自動辨識：
 
 ```text
 windows_exporter
 node_exporter
 ```
 
-後續可擴充：
+兩者皆未偵測到時，type 標示為 `unknown`，normalizer 仍記錄 `host_source_exporter_up`，但無法套用 mapping 規則進行正規化（待後續 Phase）。
+
+後續可擴充偵測的類型：
 
 ```text
 custom

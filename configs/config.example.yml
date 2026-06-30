@@ -1,0 +1,46 @@
+server:
+  listen_address: "0.0.0.0"
+  listen_port: 9527
+  metrics_path: "/metrics"
+  health_path: "/healthz"
+  debug_enabled: true
+
+# type/version/os_family 由 normalizer 從 exporter 自帶的 *_build_info 自動偵測，不需配置。
+source_exporter:
+  endpoint: "http://127.0.0.1:9182/metrics"
+  timeout_seconds: 3
+
+cache:
+  enabled: true
+  ttl_seconds: 60
+  stale_after_seconds: 180
+
+asset:
+  asset_id: "ASSET-001"
+  hostname: "srv-app-01"
+  display_name: "App Server 01"
+  owner: "infra"
+  environment: "prod"
+  location: "office-3f"
+  role: "app-server"
+  criticality: "medium"
+  managed_by: "wayne"
+  note: "VMware Workstation host"
+
+labels:
+  site: "hq"
+  team: "infra"
+  platform_group: "legacy-pc"
+
+normalization:
+  filesystem_ignore_regex:
+    - "^/run"
+    - "^/sys"
+    - "^/proc"
+    - "^tmpfs"
+  network_ignore_regex:
+    - "^Loopback"
+    - "^lo$"
+    - "^vEthernet"
+    - "^docker"
+    - "^br-"
