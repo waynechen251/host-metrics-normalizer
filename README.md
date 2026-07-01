@@ -2,7 +2,7 @@
 
 跨平台的 Prometheus 指標正規化匯出器（exporter），搭配 `windows_exporter` 或 `node_exporter` 部署在每台主機上，將不同作業系統的指標統一轉換為一致的 `host_*` schema，讓 Prometheus 與 Grafana 只需面對一套查詢邏輯。
 
-> 本專案目前處於規格設計階段，原始碼尚未實作。完整規格請見 [.agent/spec/index.md](.agent/spec/index.md)。
+> 本專案以 `.agent/spec/index.md` 為設計依據，實作會優先對齊該規格。
 
 ## 為什麼需要它
 
@@ -44,7 +44,6 @@ server:
   listen_port: 9527
 
 source_exporter:
-  type: "windows_exporter"
   endpoint: "http://127.0.0.1:9182/metrics"
 
 asset:
@@ -65,6 +64,8 @@ asset:
 ## 文件
 
 所有設計細節以 [.agent/spec/index.md](.agent/spec/index.md) 為唯一權威來源，包含部署架構、技術選型、metric 命名規範、mapping 規則、維運與安全考量、Grafana/告警建議、開發階段規劃等。
+
+補充的 windows_exporter 版本索引見 [docs/windows-exporter-help-map.md](docs/windows-exporter-help-map.md)。
 
 ## 專案狀態
 

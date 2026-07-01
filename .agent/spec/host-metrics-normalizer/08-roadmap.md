@@ -29,11 +29,12 @@
 
 ### Phase 3: Windows exporter parser
 
-1. 解析 Windows CPU。
-2. 解析 Windows memory。
-3. 解析 Windows logical disk。
-4. 解析 Windows network。
-5. 解析 Windows uptime。
+1. 建立 Windows exact-version mapping registry。
+2. 解析 Windows CPU。
+3. 解析 Windows memory。
+4. 解析 Windows logical disk。
+5. 解析 Windows network。
+6. 解析 Windows uptime。
 
 ### Phase 4: Normalized metrics output
 

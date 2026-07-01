@@ -203,8 +203,8 @@ host_disk_queue_length{host="srv-app-01", disk="disk0"} 0.2
 ### 9.9 Network
 
 ```text
-host_network_receive_bytes_per_second{host="srv-app-01", nic="Ethernet"} 123456
-host_network_transmit_bytes_per_second{host="srv-app-01", nic="Ethernet"} 654321
+host_network_receive_bytes_total{host="srv-app-01", nic="Ethernet"} 123456
+host_network_transmit_bytes_total{host="srv-app-01", nic="Ethernet"} 654321
 host_network_receive_errors_total{host="srv-app-01", nic="Ethernet"} 0
 host_network_transmit_errors_total{host="srv-app-01", nic="Ethernet"} 0
 host_network_link_up{host="srv-app-01", nic="Ethernet"} 1

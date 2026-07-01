@@ -59,3 +59,13 @@
 人工排查用。
 
 回傳 normalizer 解析後的中間資料模型。
+
+回應狀態：
+
+| 情境 | 狀態碼 |
+|---|---|
+| `debug_enabled: false` | 404（不揭露端點存在） |
+| 尚未有任何成功 normalization | 503（cache 尚無資料） |
+| 已有快取資料 | 200 + JSON 格式的 normalized snapshot |
+
+normalized snapshot 至少應包含 exporter type / version / os_family、support status、host label、已產生的 normalized series 與 missing metrics 資訊。
