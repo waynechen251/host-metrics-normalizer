@@ -4,12 +4,14 @@ import threading
 from dataclasses import dataclass, replace
 
 from .detect import UNKNOWN, DetectedExporter
+from .normalized import NormalizedSnapshot
 
 
 @dataclass(frozen=True)
 class CacheSnapshot:
     raw_text: str | None = None
     detected: DetectedExporter = UNKNOWN
+    normalized: NormalizedSnapshot | None = None
     last_scrape_wall: float | None = None
     last_scrape_success: bool = False
     last_scrape_duration: float = 0.0
@@ -33,11 +35,13 @@ class RawMetricsCache:
         duration: float,
         monotonic_now: float,
         wall_now: float,
+        normalized: NormalizedSnapshot | None = None,
     ) -> None:
         with self._lock:
             self._snapshot = CacheSnapshot(
                 raw_text=raw_text,
                 detected=detected,
+                normalized=normalized,
                 last_scrape_wall=wall_now,
                 last_scrape_success=True,
                 last_scrape_duration=duration,

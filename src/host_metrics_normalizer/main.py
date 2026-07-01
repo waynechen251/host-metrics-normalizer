@@ -54,9 +54,9 @@ def main(argv: list[str] | None = None) -> int:
 
     log.info("Config loaded from %s", args.config)
 
-    metrics = NormalizerMetrics(version=__version__, config_version="manual")
-    health = HealthState(version=__version__)
     cache = RawMetricsCache()
+    metrics = NormalizerMetrics(version=__version__, config_version="manual", config=config, cache=cache)
+    health = HealthState(version=__version__)
     server = NormalizerHTTPServer(config, metrics, health, cache)
 
     stop_event = threading.Event()

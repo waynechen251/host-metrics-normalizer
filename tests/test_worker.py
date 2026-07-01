@@ -67,6 +67,14 @@ def test_scrape_once_success_updates_cache_metrics_health(monkeypatch):
     assert snapshot.last_scrape_success is True
     assert snapshot.detected.type == "windows_exporter"
     assert snapshot.detected.version == "0.31.6"
+    assert snapshot.normalized is not None
+    assert snapshot.normalized.status == "ok"
+    assert {
+        "host_os_info",
+        "host_cpu_usage_percent",
+        "host_memory_bytes_total",
+        "host_uptime_seconds",
+    }.issubset({series.name for series in snapshot.normalized.series})
 
     health_snapshot = health.snapshot()
     assert health_snapshot["source_exporter_up"] is True

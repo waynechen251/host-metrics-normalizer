@@ -18,6 +18,7 @@ from host_metrics_normalizer.config import (
 )
 from host_metrics_normalizer.detect import DetectedExporter
 from host_metrics_normalizer.metrics import NormalizerMetrics
+from host_metrics_normalizer.normalized import NormalizedSeries, NormalizedSnapshot
 from host_metrics_normalizer.server import HealthState, NormalizerHTTPServer
 
 
@@ -34,9 +35,14 @@ def build_config(debug_enabled: bool = True) -> AppConfig:
 
 @pytest.fixture
 def running_server():
-    def _start(debug_enabled: bool = True, cache: RawMetricsCache | None = None):
-        config = build_config(debug_enabled=debug_enabled)
-        metrics = NormalizerMetrics(version="0.1.0")
+    def _start(
+        debug_enabled: bool = True,
+        cache: RawMetricsCache | None = None,
+        config: AppConfig | None = None,
+        metrics: NormalizerMetrics | None = None,
+    ):
+        config = config if config is not None else build_config(debug_enabled=debug_enabled)
+        metrics = metrics if metrics is not None else NormalizerMetrics(version="0.1.0")
         health = HealthState(version="0.1.0")
         cache = cache if cache is not None else RawMetricsCache()
         server = NormalizerHTTPServer(config, metrics, health, cache)
@@ -120,12 +126,67 @@ def test_debug_raw_returns_cached_text_when_available(running_server):
     assert body.decode("utf-8") == "windows_exporter_build_info 1\n"
 
 
-def test_debug_normalized_returns_501(running_server):
+def test_debug_normalized_returns_503(running_server):
     server = running_server(debug_enabled=True)
 
     status, _, _ = _get(server, "/debug/normalized")
 
-    assert status == 501
+    assert status == 503
+
+
+def test_debug_normalized_returns_cached_json():
+    config = build_config(debug_enabled=True)
+    cache = RawMetricsCache()
+    normalized = NormalizedSnapshot(
+        status="ok",
+        supported=True,
+        exporter="windows_exporter",
+        version="0.31.6",
+        os_family="windows",
+        host="srv-app-01",
+        series=(
+            NormalizedSeries.from_mapping(
+                "host_os_info",
+                1.0,
+                {
+                    "host": "srv-app-01",
+                    "os_family": "windows",
+                    "os_name": "Windows 10 Pro",
+                    "os_version": "10.0.19045",
+                    "kernel_version": "10.0.19045",
+                    "architecture": "x86_64",
+                },
+            ),
+        ),
+    )
+    cache.update_success(
+        raw_text="windows_exporter_build_info 1\n",
+        detected=DetectedExporter(type="windows_exporter", os_family="windows", version="0.31.6"),
+        duration=0.02,
+        monotonic_now=1.0,
+        wall_now=1.0,
+        normalized=normalized,
+    )
+    metrics = NormalizerMetrics(version="0.1.0", config=config, cache=cache)
+    server = NormalizerHTTPServer(config, metrics, HealthState(version="0.1.0"), cache)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+
+    try:
+        status, content_type, body = _get(server, "/debug/normalized")
+
+        assert status == 200
+        assert content_type == "application/json"
+        payload = json.loads(body)
+        assert payload["status"] == "ok"
+        assert payload["supported"] is True
+        assert payload["exporter"] == "windows_exporter"
+        assert payload["host"] == "srv-app-01"
+        assert payload["last_scrape_timestamp"] == 1
+        assert payload["series"][0]["name"] == "host_os_info"
+    finally:
+        server.shutdown()
+        thread.join(timeout=5)
 
 
 def test_debug_endpoint_returns_404_when_disabled(running_server):

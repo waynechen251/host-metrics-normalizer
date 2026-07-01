@@ -4,7 +4,13 @@ from .cache import CacheSnapshot
 
 
 class NormalizerMetrics:
-    def __init__(self, version: str, config_version: str = "manual"):
+    def __init__(
+        self,
+        version: str,
+        config_version: str = "manual",
+        config=None,
+        cache=None,
+    ):
         self.registry = CollectorRegistry()
 
         self.info = Info(
@@ -81,6 +87,11 @@ class NormalizerMetrics:
         self.last_scrape_timestamp.set(0)
         self.last_scrape_success.set(0)
         self.stale.set(0)
+
+        if config is not None and cache is not None:
+            from .host_metrics import HostMetricsCollector
+
+            self.registry.register(HostMetricsCollector(config, cache))
 
     def update_normalizer_scrape(self, snapshot: CacheSnapshot, stale: bool) -> None:
         self.scrape_duration.set(snapshot.last_scrape_duration)

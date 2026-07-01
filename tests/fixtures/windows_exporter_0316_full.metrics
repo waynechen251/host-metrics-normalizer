@@ -1,0 +1,36 @@
+# HELP windows_exporter_build_info Build information about windows_exporter.
+# TYPE windows_exporter_build_info gauge
+windows_exporter_build_info{goarch="amd64",goos="windows",version="0.31.6"} 1
+# HELP windows_cpu_time_total Time that processor spent in different modes.
+# TYPE windows_cpu_time_total counter
+windows_cpu_time_total{core="0,0",mode="idle"} 6844.765625
+windows_cpu_time_total{core="0,0",mode="user"} 279.484375
+windows_cpu_time_total{core="0,1",mode="idle"} 6710.78125
+windows_cpu_time_total{core="0,1",mode="user"} 413.46875
+# HELP windows_cs_logical_processors Number of logical processors.
+# TYPE windows_cs_logical_processors gauge
+windows_cs_logical_processors 28
+# HELP windows_memory_physical_total_bytes Total physical memory in bytes.
+# TYPE windows_memory_physical_total_bytes gauge
+windows_memory_physical_total_bytes 1.7179869184e+10
+# HELP windows_memory_physical_available_bytes Available physical memory in bytes.
+# TYPE windows_memory_physical_available_bytes gauge
+windows_memory_physical_available_bytes 8.589934592e+09
+# HELP windows_os_info OperatingSystem.Caption, OperatingSystem.Version.
+# TYPE windows_os_info gauge
+windows_os_info{build_number="19045",major_version="10",minor_version="0",product="Windows 10 Pro",revision="6466",version="10.0.19045"} 1
+# HELP windows_logical_disk_size_bytes Logical disk size in bytes.
+# TYPE windows_logical_disk_size_bytes gauge
+windows_logical_disk_size_bytes{filesystem="NTFS",volume="C:"} 5.12110190592e+11
+# HELP windows_logical_disk_free_bytes Logical disk free bytes.
+# TYPE windows_logical_disk_free_bytes gauge
+windows_logical_disk_free_bytes{filesystem="NTFS",volume="C:"} 1.20034123776e+11
+# HELP windows_net_bytes_received_total Network bytes received total.
+# TYPE windows_net_bytes_received_total counter
+windows_net_bytes_received_total{nic="Ethernet"} 123456
+# HELP windows_net_bytes_sent_total Network bytes sent total.
+# TYPE windows_net_bytes_sent_total counter
+windows_net_bytes_sent_total{nic="Ethernet"} 654321
+# HELP windows_system_boot_time_timestamp Unix timestamp of system boot time.
+# TYPE windows_system_boot_time_timestamp gauge
+windows_system_boot_time_timestamp 1.782815253304e+09

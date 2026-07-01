@@ -6,6 +6,7 @@ import time
 from .cache import RawMetricsCache
 from .config import AppConfig
 from .detect import detect_from_raw
+from .normalization import normalize_exporter_metrics
 from .metrics import NormalizerMetrics
 from .scraper import scrape
 from .server import HealthState
@@ -20,6 +21,7 @@ class ScrapeWorker:
         health: HealthState,
         stop_event: threading.Event,
     ):
+        self._config = config
         self._endpoint = config.source_exporter.endpoint
         self._timeout = config.source_exporter.timeout_seconds
         self._interval = max(1, config.cache.ttl_seconds)
@@ -41,8 +43,21 @@ class ScrapeWorker:
 
         if result.success:
             detected = detect_from_raw(result.raw_text)
+            normalized = normalize_exporter_metrics(
+                self._config,
+                detected,
+                result.raw_text,
+                now=wall_now,
+            )
+            if normalized.status == "parse_error":
+                self._metrics.record_normalizer_error()
             self._cache.update_success(
-                result.raw_text, detected, result.duration_seconds, monotonic_now, wall_now
+                result.raw_text,
+                detected,
+                result.duration_seconds,
+                monotonic_now,
+                wall_now,
+                normalized=normalized,
             )
         else:
             self._cache.update_failure(result.duration_seconds, monotonic_now, wall_now)

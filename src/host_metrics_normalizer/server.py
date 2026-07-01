@@ -103,7 +103,7 @@ def make_handler(
             if path == "/debug/raw":
                 self._handle_debug_raw()
             elif path == "/debug/normalized":
-                self._write_json(501, {"error": "not implemented"})
+                self._handle_debug_normalized()
             else:
                 self._write_json(404, {"error": "not found"})
 
@@ -113,6 +113,23 @@ def make_handler(
                 self._write_text(503, "no source exporter data cached yet\n")
                 return
             self._write_text(200, snapshot.raw_text)
+
+        def _handle_debug_normalized(self) -> None:
+            snapshot = cache.get()
+            normalized = snapshot.normalized
+            if normalized is None:
+                self._write_json(503, {"error": "no normalized data cached yet"})
+                return
+
+            payload = normalized.to_dict()
+            payload.update(
+                {
+                    "last_scrape_success": snapshot.last_scrape_success,
+                    "last_scrape_timestamp": int(snapshot.last_scrape_wall or 0),
+                    "last_scrape_duration_seconds": snapshot.last_scrape_duration,
+                }
+            )
+            self._write_json(200, payload)
 
         def _write_json(self, status: int, payload: dict) -> None:
             body = json.dumps(payload).encode("utf-8")
