@@ -2,6 +2,10 @@ $ErrorActionPreference = "Stop"
 
 $RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 Set-Location $RepoRoot
+Write-Host "Set-Location $RepoRoot"
+
+
+pip install -r "$RepoRoot\requirements.txt"
 
 pyinstaller --clean --noconfirm packaging/windows/host-metrics-normalizer.spec
 

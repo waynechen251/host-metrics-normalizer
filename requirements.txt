@@ -1,0 +1,35 @@
+# Auto-generated from pyproject.toml dependency inventory.
+# All versions are pinned (no floating ranges) for reproducible builds.
+# Regenerate by resolving pyproject.toml [project.dependencies] and
+# [project.optional-dependencies] (dev, build) in a clean virtualenv.
+
+# --- Runtime dependencies (host_metrics_normalizer) ---
+prometheus_client==0.25.0
+PyYAML==6.0.3
+requests==2.34.2
+
+# --- Transitive dependencies of requests ---
+certifi==2026.6.17
+charset-normalizer==3.4.7
+idna==3.18
+urllib3==2.7.0
+
+# --- Dev dependencies (optional-dependencies.dev: test suite) ---
+pytest==9.1.1
+
+# --- Transitive dependencies of pytest ---
+iniconfig==2.3.0
+packaging==26.2
+pluggy==1.6.0
+Pygments==2.20.0
+colorama==0.4.6; sys_platform == "win32"
+
+# --- Build dependencies (optional-dependencies.build: PyInstaller packaging) ---
+pyinstaller==6.21.0
+
+# --- Transitive dependencies of pyinstaller ---
+altgraph==0.17.5
+pefile==2024.8.26; sys_platform == "win32"
+pyinstaller-hooks-contrib==2026.6
+pywin32-ctypes==0.2.3; sys_platform == "win32"
+setuptools==82.0.1
