@@ -19,7 +19,7 @@ from .._prometheus_helpers import (
 
 __all__ = [
     "_cpu_usage_percent",
-    "_distinct_core_count",
+    "_distinct_label_count",
     "_first_family",
     "_first_family_value",
     "_first_label",
@@ -28,18 +28,12 @@ __all__ = [
     "_labeled_series",
     "_normalize_architecture",
     "_uptime_seconds",
-    "_NIC_LABEL_KEYS",
-    "_FilesystemKey",
-    "_logical_disk_filesystem_map",
+    "_DEVICE_LABEL_KEYS",
     "_filesystem_metrics",
-    "_filesystem_key",
+    "_cpu_info_core_socket_counts",
 ]
 
-_NIC_LABEL_KEYS = ("nic", "interface", "device", "name", "adapter")
-
-
-def _distinct_core_count(family) -> int | None:
-    return _distinct_label_count(family, "core")
+_DEVICE_LABEL_KEYS = ("device",)
 
 
 @dataclass(frozen=True)
@@ -49,31 +43,26 @@ class _FilesystemKey:
     role: str
 
 
-def _logical_disk_filesystem_map(info_family) -> dict[str, str]:
-    mapping: dict[str, str] = {}
-    for sample in getattr(info_family, "samples", ()):
-        labels = getattr(sample, "labels", {}) or {}
-        volume = _first_non_empty(labels, "volume")
-        filesystem = _first_non_empty(labels, "filesystem")
-        if volume and filesystem:
-            mapping[volume] = filesystem
-    return mapping
+def _filesystem_key(sample) -> _FilesystemKey:
+    labels = getattr(sample, "labels", {}) or {}
+    mount = _first_non_empty(labels, "mountpoint")
+    filesystem = _first_non_empty(labels, "fstype")
+    role = "system" if mount == "/" else ""
+    return _FilesystemKey(mount=mount, filesystem=filesystem, role=role)
 
 
-def _filesystem_metrics(
-    size_family,
-    free_family,
-    host: str,
-    filesystem_by_volume: dict[str, str],
-) -> list[NormalizedSeries]:
-    entries: dict[_FilesystemKey, dict[str, float | str]] = defaultdict(dict)
+def _filesystem_metrics(size_family, avail_family, host: str) -> list[NormalizedSeries]:
+    # node_filesystem_size_bytes/avail_bytes already carry `fstype` directly on each
+    # sample, unlike windows_exporter's logical_disk_size_bytes/free_bytes (which need
+    # a join against a separate *_info family) — so no lookup table is needed here.
+    entries: dict[_FilesystemKey, dict[str, float]] = defaultdict(dict)
 
     for sample in getattr(size_family, "samples", ()) if size_family is not None else ():
-        key = _filesystem_key(sample, filesystem_by_volume)
+        key = _filesystem_key(sample)
         entries[key]["size"] = float(sample.value)
 
-    for sample in getattr(free_family, "samples", ()) if free_family is not None else ():
-        key = _filesystem_key(sample, filesystem_by_volume)
+    for sample in getattr(avail_family, "samples", ()) if avail_family is not None else ():
+        key = _filesystem_key(sample)
         entries[key]["free"] = float(sample.value)
 
     series: list[NormalizedSeries] = []
@@ -105,11 +94,17 @@ def _filesystem_metrics(
     return series
 
 
-def _filesystem_key(sample, filesystem_by_volume: dict[str, str]) -> _FilesystemKey:
-    labels = getattr(sample, "labels", {}) or {}
-    mount = _first_non_empty(labels, "mount", "volume", "device", "name", "path")
-    filesystem = _first_non_empty(labels, "filesystem", "fstype", "fs_type") or filesystem_by_volume.get(mount, "")
-    role = _first_non_empty(labels, "role")
-    if not role and mount in {"C:", "/"}:
-        role = "system"
-    return _FilesystemKey(mount=mount, filesystem=filesystem, role=role)
+def _cpu_info_core_socket_counts(family) -> tuple[float | None, float | None]:
+    cores: set[tuple[str, str]] = set()
+    sockets: set[str] = set()
+    for sample in getattr(family, "samples", ()):
+        labels = getattr(sample, "labels", {}) or {}
+        package = labels.get("package")
+        core = labels.get("core")
+        if package:
+            sockets.add(package)
+            if core:
+                cores.add((package, core))
+    cores_total = float(len(cores)) if cores else None
+    sockets_total = float(len(sockets)) if sockets else None
+    return cores_total, sockets_total

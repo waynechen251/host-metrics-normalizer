@@ -16,9 +16,9 @@ from host_metrics_normalizer.metrics import NormalizerMetrics
 from host_metrics_normalizer.normalization import normalize_exporter_metrics
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
-WINDOWS_0316 = DetectedExporter(type="windows_exporter", os_family="windows", version="0.31.6")
-WINDOWS_UNSUPPORTED = DetectedExporter(type="windows_exporter", os_family="windows", version="0.31.5")
-UNKNOWN_EXPORTER = DetectedExporter(type="unknown_exporter", os_family="linux", version="1.0.0")
+NODE_1_10_2 = DetectedExporter(type="node_exporter", os_family="linux", version="1.10.2")
+NODE_UNSUPPORTED = DetectedExporter(type="node_exporter", os_family="linux", version="1.8.2")
+UNKNOWN_EXPORTER = DetectedExporter(type="unknown_exporter", os_family="windows", version="1.0.0")
 
 
 def _read_fixture(name: str) -> str:
@@ -28,10 +28,10 @@ def _read_fixture(name: str) -> str:
 def build_config() -> AppConfig:
     return AppConfig(
         server=ServerConfig(),
-        source_exporter=SourceExporterConfig(endpoint="http://127.0.0.1:9182/metrics"),
+        source_exporter=SourceExporterConfig(endpoint="http://127.0.0.1:9100/metrics"),
         cache=CacheConfig(),
         asset=AssetConfig(
-            asset_id="ASSET-001",
+            asset_id="ASSET-002",
             hostname="srv-app-01",
             display_name="App Server 01",
             owner="infra",
@@ -48,20 +48,20 @@ def build_config() -> AppConfig:
 
 def test_wrong_exporter_type_returns_unsupported_snapshot():
     config = build_config()
-    raw = _read_fixture("windows_exporter_0316_full.metrics")
+    raw = _read_fixture("node_exporter_1_10_2_full.metrics")
 
-    snapshot = normalize_exporter_metrics(config, UNKNOWN_EXPORTER, raw, now=1784049820.304)
+    snapshot = normalize_exporter_metrics(config, UNKNOWN_EXPORTER, raw, now=1418788076.0)
 
     assert snapshot.status == "unsupported_exporter"
     assert snapshot.supported is False
     assert snapshot.series == ()
 
 
-def test_unsupported_windows_version_returns_unsupported_snapshot():
+def test_unsupported_node_version_returns_unsupported_snapshot():
     config = build_config()
-    raw = _read_fixture("windows_exporter_0316_full.metrics")
+    raw = _read_fixture("node_exporter_1_10_2_full.metrics")
 
-    snapshot = normalize_exporter_metrics(config, WINDOWS_UNSUPPORTED, raw, now=1784049820.304)
+    snapshot = normalize_exporter_metrics(config, NODE_UNSUPPORTED, raw, now=1418788076.0)
 
     assert snapshot.status == "unsupported_version"
     assert snapshot.supported is False
@@ -71,7 +71,7 @@ def test_unsupported_windows_version_returns_unsupported_snapshot():
 def test_parse_error_returns_unsupported_snapshot():
     config = build_config()
 
-    snapshot = normalize_exporter_metrics(config, WINDOWS_0316, "{{{ not prometheus text }}}", now=1784049820.304)
+    snapshot = normalize_exporter_metrics(config, NODE_1_10_2, "{{{ not prometheus text }}}", now=1418788076.0)
 
     assert snapshot.status == "parse_error"
     assert snapshot.supported is False
@@ -81,16 +81,16 @@ def test_parse_error_returns_unsupported_snapshot():
 def test_host_metrics_collector_emits_only_self_metrics_when_version_unsupported():
     config = build_config()
     cache = RawMetricsCache()
-    raw = _read_fixture("windows_exporter_0316_full.metrics")
-    snapshot = normalize_exporter_metrics(config, WINDOWS_UNSUPPORTED, raw, now=1784049820.304)
+    raw = _read_fixture("node_exporter_1_10_2_full.metrics")
+    snapshot = normalize_exporter_metrics(config, NODE_UNSUPPORTED, raw, now=1418788076.0)
     assert snapshot.series == ()
 
     cache.update_success(
         raw_text=raw,
-        detected=WINDOWS_UNSUPPORTED,
+        detected=NODE_UNSUPPORTED,
         duration=0.05,
         monotonic_now=100.0,
-        wall_now=1784049820.304,
+        wall_now=1418788076.0,
         normalized=snapshot,
     )
 

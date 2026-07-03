@@ -81,33 +81,85 @@ host_uptime_seconds
 
 ### 10.2 Node exporter mapping
 
+Phase 3 先以 `node_exporter 1.10.2` 的 exact version registry 為準(見 `.agent/spec/metrics-mapping/node_exporter/1.10.2/`)。跟 windows_exporter 一樣,normalizer 只在版本完全符合時套用 Linux mapping;未列版本先視為 unsupported,不輸出 `host_*` 正規化指標。
+
 來源可能包含：
 
 ```text
 node_cpu_seconds_total
+node_cpu_info                          # cpu.info 子功能,需要 --collector.cpu.info 旗標,非預設啟用
 node_memory_MemTotal_bytes
 node_memory_MemAvailable_bytes
+node_memory_MemFree_bytes
+node_memory_SwapTotal_bytes
+node_memory_SwapFree_bytes
+node_os_info
 node_uname_info
 node_filesystem_size_bytes
-node_filesystem_free_bytes
+node_filesystem_avail_bytes
+node_disk_io_now
+node_disk_read_bytes_total
+node_disk_written_bytes_total          # 注意是過去式 written,不是 write
+node_disk_reads_completed_total
+node_disk_writes_completed_total
 node_network_receive_bytes_total
 node_network_transmit_bytes_total
+node_network_receive_errs_total
+node_network_transmit_errs_total
+node_network_up
+node_network_speed_bytes               # 單位是 bytes/sec,轉換時需 ×8 才是 host_network_speed_bits 宣告的 bits/sec
 node_boot_time_seconds
+node_exporter_build_info
 ```
 
 轉換為：
 
 ```text
+host_os_info
 host_cpu_usage_percent
+host_cpu_threads_total
+host_cpu_cores_total
+host_cpu_sockets_total
+host_cpu_info
 host_memory_bytes_total
 host_memory_bytes_available
-host_os_info
+host_memory_usage_percent
+host_memory_swap_bytes_total
+host_memory_swap_usage_percent
 host_filesystem_size_bytes
 host_filesystem_free_bytes
+host_filesystem_usage_percent
+host_disk_queue_length
+host_disk_read_bytes_total
+host_disk_write_bytes_total
+host_disk_reads_total
+host_disk_writes_total
 host_network_receive_bytes_total
 host_network_transmit_bytes_total
+host_network_receive_errors_total
+host_network_transmit_errors_total
+host_network_link_up
+host_network_speed_bits
 host_uptime_seconds
 ```
+
+`host_os_info` 由三個來源合成:`os_name`/`os_version` 取自 `node_os_info`(`pretty_name`/`version_id`),`kernel_version` 取自 `node_uname_info`(`release`),`architecture` 取自 `node_exporter_build_info`(`goarch`,與 windows_exporter 同一套 goarch 慣例,不解析 uname 的 `machine`)。
+
+`host_memory_bytes_available` 主要來源是 `node_memory_MemAvailable_bytes`(排除 root 保留區塊、語意正確的「可用」),`node_memory_MemFree_bytes` 作為 fallback——這裡是全新規劃、沒有既有部署要遷就,跟 windows_exporter 的 `free_bytes` 優先(維持既有數值基準)是不同考量,不要誤以為兩邊政策不一致。
+
+`host_filesystem_free_bytes` 對應 `node_filesystem_avail_bytes` 不是 `node_filesystem_free_bytes`——`avail_bytes` 才是 `df` 顯示的可用空間語意。`node_filesystem_size_bytes`/`avail_bytes` 本身就帶 `fstype` label,不像 windows_exporter 需要額外 join 一個 `*_info` family。
+
+`host_cpu_threads_total` 直接從 `node_cpu_seconds_total` 的 `cpu` label 相異值數量推導——`cpu` collector 預設啟用,不需要像 windows_exporter 那樣多層 fallback。
+
+`host_cpu_cores_total`/`host_cpu_sockets_total`/`host_cpu_info` 依賴 `node_cpu_info`(`cpu.info` 子功能,需要額外的 `--collector.cpu.info` 旗標,非預設啟用),實務上經常缺席,屬預期常態,會反映在 `missing_metrics`,與 windows_exporter 的 `cpu_info` collector 同樣性質。
+
+`host_network_link_up` 直接讀 `node_network_up`(值已經是 0/1),不需要像 windows_exporter 的 `nic_operation_status` 那樣解析狀態字串。
+
+Counter 類指標(`node_cpu_seconds_total`、`node_disk_*_total`、`node_network_*_total`)一樣要用「帶 `_total` 的官方名稱」與「去掉後綴的裸名稱」雙名稱 fallback 查找,原因與 windows_exporter 相同(`prometheus_client` parser 對 counter 類型會去除 family name 的 `_total` 後綴,是 parser 層級行為、不分 exporter)。
+
+`node_network_speed_bytes` 若介面沒有協商到速度(常見於 bridge、down 狀態的介面),核心會透過 sysfs 回報 `-1`,node_exporter 原樣透傳成負的 bytes/sec;mapping 會過濾負值,該介面直接不輸出 `host_network_speed_bits`(不是缺席整個 family,只是該筆 sample 略過)。這是拿內部真實 Linux 主機(有大量 Docker bridge/veth 介面)實測後才發現的落差,`node_cpu_info` 因為未啟用 `--collector.cpu.info` 而缺席則完全符合預期。
+
+以上映射已用 node_exporter 專案自己的 end-to-end 測試黃金輸出(`.agent/spec/metrics-mapping/node_exporter/1.10.2/e2e-output-linux.txt`)與本機 clone 的 Go 原始碼(`collector/*.go`)交叉驗證;`node_uname_info`/`node_filesystem_*`/`node_memory_MemAvailable_bytes`/network rx-tx 的 sample 數值因為 node_exporter 自己的 e2e 測試腳本刻意停用或濾除而無法從這份輸出核對到實際數值(collector 名稱與 labels 已改查 Go 原始碼確認),等使用者拿內部真實 Linux 主機實測後再校正。
 
 ### 10.3 Rate 類指標處理
 

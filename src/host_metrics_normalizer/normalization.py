@@ -6,7 +6,7 @@ import socket
 from .config import AppConfig
 from .detect import DetectedExporter
 from .normalized import NormalizedSnapshot, unsupported_snapshot
-from .normalizer import normalize_windows_exporter
+from .normalizer import normalize_node_exporter, normalize_windows_exporter
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,8 @@ def normalize_exporter_metrics(
     try:
         if detected.type == "windows_exporter":
             return normalize_windows_exporter(raw_text, detected, host=host, now=now)
+        if detected.type == "node_exporter":
+            return normalize_node_exporter(raw_text, detected, host=host, now=now)
     except Exception:
         logger.exception("Normalization failed for exporter=%s version=%s", detected.type, detected.version)
         return unsupported_snapshot(
