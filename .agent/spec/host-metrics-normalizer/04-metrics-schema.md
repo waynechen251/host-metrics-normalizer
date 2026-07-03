@@ -190,14 +190,14 @@ host_filesystem_free_bytes{host="srv-docker-01", mount="/", filesystem="ext4", r
 host_filesystem_usage_percent{host="srv-docker-01", mount="/", filesystem="ext4", role="system"} 50.0
 ```
 
-Disk I/O：
+Disk I/O(counter，速率交給 Prometheus `rate()`/`irate()` 計算，與 §9.9 network 指標的政策一致)：
 
 ```text
-host_disk_read_bytes_per_second{host="srv-app-01", disk="disk0"} 123456
-host_disk_write_bytes_per_second{host="srv-app-01", disk="disk0"} 654321
-host_disk_reads_per_second{host="srv-app-01", disk="disk0"} 12
-host_disk_writes_per_second{host="srv-app-01", disk="disk0"} 18
-host_disk_queue_length{host="srv-app-01", disk="disk0"} 0.2
+host_disk_read_bytes_total{host="srv-app-01", disk="0"} 123456789
+host_disk_write_bytes_total{host="srv-app-01", disk="0"} 987654321
+host_disk_reads_total{host="srv-app-01", disk="0"} 4242
+host_disk_writes_total{host="srv-app-01", disk="0"} 1337
+host_disk_queue_length{host="srv-app-01", disk="0"} 0.2
 ```
 
 ### 9.9 Network

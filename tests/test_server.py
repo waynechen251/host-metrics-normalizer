@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import http.client
 import json
 import threading
 import urllib.error
@@ -71,6 +72,18 @@ def _get(server: NormalizerHTTPServer, path: str):
             return response.status, response.headers.get("Content-Type"), response.read()
     except urllib.error.HTTPError as exc:
         return exc.code, exc.headers.get("Content-Type"), exc.read()
+
+
+def _get_no_redirect(server: NormalizerHTTPServer, path: str):
+    host, port = server.server_address
+    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+    try:
+        conn.request("GET", path)
+        response = conn.getresponse()
+        response.read()
+        return response.status, response.getheader("Location")
+    finally:
+        conn.close()
 
 
 def test_healthz_returns_expected_json(running_server):
@@ -203,3 +216,22 @@ def test_unknown_path_returns_404(running_server):
     status, _, _ = _get(server, "/does-not-exist")
 
     assert status == 404
+
+
+def test_root_path_redirects_to_metrics_path(running_server):
+    server = running_server()
+
+    status, location = _get_no_redirect(server, "/")
+
+    assert status == 302
+    assert location == "/metrics"
+
+
+def test_root_path_follow_redirect_returns_prometheus_exposition(running_server):
+    server = running_server()
+
+    status, content_type, body = _get(server, "/")
+
+    assert status == 200
+    assert "text/plain" in content_type
+    assert "host_normalizer_up 1.0" in body.decode("utf-8")

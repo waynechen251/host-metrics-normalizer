@@ -7,30 +7,72 @@ windows_cpu_time_total{core="0,0",mode="idle"} 6844.765625
 windows_cpu_time_total{core="0,0",mode="user"} 279.484375
 windows_cpu_time_total{core="0,1",mode="idle"} 6710.78125
 windows_cpu_time_total{core="0,1",mode="user"} 413.46875
-# HELP windows_cs_logical_processors Number of logical processors.
-# TYPE windows_cs_logical_processors gauge
-windows_cs_logical_processors 28
-# HELP windows_memory_physical_total_bytes Total physical memory in bytes.
+# HELP windows_cpu_info Labelled CPU information
+# TYPE windows_cpu_info gauge
+windows_cpu_info{architecture="9",description="AMD64 Family 25 Model 33 Stepping 2",device_id="CPU0",family="107",name="AMD Ryzen 9 5900X 12-Core Processor"} 1
+# HELP windows_cpu_info_core Number of cores per CPU
+# TYPE windows_cpu_info_core gauge
+windows_cpu_info_core{device_id="CPU0"} 12
+# HELP windows_memory_physical_total_bytes Total bytes of physical memory.
 # TYPE windows_memory_physical_total_bytes gauge
 windows_memory_physical_total_bytes 1.7179869184e+10
-# HELP windows_memory_physical_available_bytes Available physical memory in bytes.
-# TYPE windows_memory_physical_available_bytes gauge
-windows_memory_physical_available_bytes 8.589934592e+09
+# HELP windows_memory_physical_free_bytes Bytes of physical memory currently unused.
+# TYPE windows_memory_physical_free_bytes gauge
+windows_memory_physical_free_bytes 8.589934592e+09
+# HELP windows_memory_available_bytes Amount of physical memory immediately available.
+# TYPE windows_memory_available_bytes gauge
+windows_memory_available_bytes 9e+09
+# HELP windows_pagefile_free_bytes OperatingSystem.FreeSpaceInPagingFiles
+# TYPE windows_pagefile_free_bytes gauge
+windows_pagefile_free_bytes{file="C:\\pagefile.sys"} 6.025797632e+09
+# HELP windows_pagefile_limit_bytes OperatingSystem.SizeStoredInPagingFiles
+# TYPE windows_pagefile_limit_bytes gauge
+windows_pagefile_limit_bytes{file="C:\\pagefile.sys"} 6.442450944e+09
 # HELP windows_os_info OperatingSystem.Caption, OperatingSystem.Version.
 # TYPE windows_os_info gauge
 windows_os_info{build_number="19045",major_version="10",minor_version="0",product="Windows 10 Pro",revision="6466",version="10.0.19045"} 1
+# HELP windows_logical_disk_info A metric with a constant '1' value labeled with logical disk information
+# TYPE windows_logical_disk_info gauge
+windows_logical_disk_info{disk="0",filesystem="NTFS",serial_number="668EEC37",type="fixed",volume="C:",volume_name="Windows"} 1
 # HELP windows_logical_disk_size_bytes Logical disk size in bytes.
 # TYPE windows_logical_disk_size_bytes gauge
-windows_logical_disk_size_bytes{filesystem="NTFS",volume="C:"} 5.12110190592e+11
+windows_logical_disk_size_bytes{volume="C:"} 5.12110190592e+11
 # HELP windows_logical_disk_free_bytes Logical disk free bytes.
 # TYPE windows_logical_disk_free_bytes gauge
-windows_logical_disk_free_bytes{filesystem="NTFS",volume="C:"} 1.20034123776e+11
-# HELP windows_net_bytes_received_total Network bytes received total.
+windows_logical_disk_free_bytes{volume="C:"} 1.20034123776e+11
+# HELP windows_physical_disk_requests_queued Requests queued.
+# TYPE windows_physical_disk_requests_queued gauge
+windows_physical_disk_requests_queued{disk="0"} 0.2
+# HELP windows_physical_disk_read_bytes_total Bytes read.
+# TYPE windows_physical_disk_read_bytes_total counter
+windows_physical_disk_read_bytes_total{disk="0"} 123456789
+# HELP windows_physical_disk_write_bytes_total Bytes written.
+# TYPE windows_physical_disk_write_bytes_total counter
+windows_physical_disk_write_bytes_total{disk="0"} 987654321
+# HELP windows_physical_disk_reads_total Read operations.
+# TYPE windows_physical_disk_reads_total counter
+windows_physical_disk_reads_total{disk="0"} 4242
+# HELP windows_physical_disk_writes_total Write operations.
+# TYPE windows_physical_disk_writes_total counter
+windows_physical_disk_writes_total{disk="0"} 1337
+# HELP windows_net_bytes_received_total Network bytes received.
 # TYPE windows_net_bytes_received_total counter
 windows_net_bytes_received_total{nic="Ethernet"} 123456
-# HELP windows_net_bytes_sent_total Network bytes sent total.
+# HELP windows_net_bytes_sent_total Network bytes sent.
 # TYPE windows_net_bytes_sent_total counter
 windows_net_bytes_sent_total{nic="Ethernet"} 654321
+# HELP windows_net_packets_received_errors_total Receive errors.
+# TYPE windows_net_packets_received_errors_total counter
+windows_net_packets_received_errors_total{nic="Ethernet"} 2
+# HELP windows_net_packets_outbound_errors_total Outbound errors.
+# TYPE windows_net_packets_outbound_errors_total counter
+windows_net_packets_outbound_errors_total{nic="Ethernet"} 1
+# HELP windows_net_nic_operation_status Operational status.
+# TYPE windows_net_nic_operation_status gauge
+windows_net_nic_operation_status{nic="Ethernet",status="1"} 1
+# HELP windows_net_current_bandwidth_bytes Current bandwidth estimate.
+# TYPE windows_net_current_bandwidth_bytes gauge
+windows_net_current_bandwidth_bytes{nic="Ethernet"} 125000000
 # HELP windows_system_boot_time_timestamp Unix timestamp of system boot time.
 # TYPE windows_system_boot_time_timestamp gauge
 windows_system_boot_time_timestamp 1.782815253304e+09

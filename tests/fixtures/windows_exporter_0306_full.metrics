@@ -1,0 +1,83 @@
+# HELP windows_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which windows_exporter was built, and the goos and goarch for the build.
+# TYPE windows_exporter_build_info gauge
+windows_exporter_build_info{branch="HEAD",goarch="amd64",goos="windows",goversion="go1.23.4",revision="db60c78f32185083354f16fb9d534a021f0d85f9",tags="trimpath",version="0.30.6"} 1
+# HELP windows_cpu_time_total Time that processor spent in different modes (dpc, idle, interrupt, privileged, user)
+# TYPE windows_cpu_time_total counter
+windows_cpu_time_total{core="0,0",mode="dpc"} 10881.90625
+windows_cpu_time_total{core="0,0",mode="idle"} 1.23692609375e+06
+windows_cpu_time_total{core="0,0",mode="interrupt"} 14262.859375
+windows_cpu_time_total{core="0,0",mode="privileged"} 129788.65625
+windows_cpu_time_total{core="0,0",mode="user"} 101636.046875
+windows_cpu_time_total{core="0,1",mode="dpc"} 3504.9375
+windows_cpu_time_total{core="0,1",mode="idle"} 1.0280035e+06
+windows_cpu_time_total{core="0,1",mode="interrupt"} 6716.984375
+windows_cpu_time_total{core="0,1",mode="privileged"} 210831.53125
+windows_cpu_time_total{core="0,1",mode="user"} 229515.734375
+windows_cpu_time_total{core="0,2",mode="dpc"} 2747.4375
+windows_cpu_time_total{core="0,2",mode="idle"} 1.180519671875e+06
+windows_cpu_time_total{core="0,2",mode="interrupt"} 5567.46875
+windows_cpu_time_total{core="0,2",mode="privileged"} 140119.3125
+windows_cpu_time_total{core="0,2",mode="user"} 147711.78125
+# HELP windows_cpu_logical_processor Total number of logical processors
+# TYPE windows_cpu_logical_processor gauge
+windows_cpu_logical_processor 6
+# HELP windows_cs_logical_processors Deprecated: Use windows_cpu_logical_processor instead
+# TYPE windows_cs_logical_processors gauge
+windows_cs_logical_processors 6
+# HELP windows_cs_physical_memory_bytes Deprecated: Use windows_memory_physical_total_bytes instead
+# TYPE windows_cs_physical_memory_bytes gauge
+windows_cs_physical_memory_bytes 2.5634922496e+10
+# HELP windows_memory_available_bytes The amount of physical memory immediately available for allocation to a process or for system use.
+# TYPE windows_memory_available_bytes gauge
+windows_memory_available_bytes 5.048582144e+09
+# HELP windows_memory_physical_free_bytes The amount of physical memory currently available, in bytes.
+# TYPE windows_memory_physical_free_bytes gauge
+windows_memory_physical_free_bytes 5.04868864e+09
+# HELP windows_memory_physical_total_bytes The amount of actual physical memory, in bytes.
+# TYPE windows_memory_physical_total_bytes gauge
+windows_memory_physical_total_bytes 2.5634922496e+10
+# HELP windows_os_info Contains full product name & version in labels.
+# TYPE windows_os_info gauge
+windows_os_info{build_number="26200",major_version="10",minor_version="0",product="Windows 11 Pro",revision="8246",version="10.0.26200"} 1
+# HELP windows_logical_disk_info A metric with a constant '1' value labeled with logical disk information
+# TYPE windows_logical_disk_info gauge
+windows_logical_disk_info{disk="1",filesystem="NTFS",serial_number="C069CBD8",type="fixed",volume="C:",volume_name="OS-Win11"} 1
+# HELP windows_logical_disk_free_bytes Free space in bytes, updates every 10-15 min
+# TYPE windows_logical_disk_free_bytes gauge
+windows_logical_disk_free_bytes{volume="C:"} 2.46939648e+11
+# HELP windows_logical_disk_size_bytes Total space in bytes, updates every 10-15 min
+# TYPE windows_logical_disk_size_bytes gauge
+windows_logical_disk_size_bytes{volume="C:"} 4.9911693312e+11
+# HELP windows_physical_disk_requests_queued The number of requests queued to the disk
+# TYPE windows_physical_disk_requests_queued gauge
+windows_physical_disk_requests_queued{disk="0"} 0
+# HELP windows_physical_disk_read_bytes_total The number of bytes transferred from the disk during read operations
+# TYPE windows_physical_disk_read_bytes_total counter
+windows_physical_disk_read_bytes_total{disk="0"} 6.47652060928e+12
+# HELP windows_physical_disk_write_bytes_total The number of bytes transferred to the disk during write operations
+# TYPE windows_physical_disk_write_bytes_total counter
+windows_physical_disk_write_bytes_total{disk="0"} 4.94122797056e+11
+# HELP windows_physical_disk_reads_total The number of read operations on the disk
+# TYPE windows_physical_disk_reads_total counter
+windows_physical_disk_reads_total{disk="0"} 7.7696116e+07
+# HELP windows_physical_disk_writes_total The number of write operations on the disk
+# TYPE windows_physical_disk_writes_total counter
+windows_physical_disk_writes_total{disk="0"} 1.3734561e+07
+# HELP windows_net_bytes_received_total (Network.BytesReceivedPerSec)
+# TYPE windows_net_bytes_received_total counter
+windows_net_bytes_received_total{nic="Realtek PCIe GbE Family Controller"} 1.5956198283e+11
+# HELP windows_net_bytes_sent_total (Network.BytesSentPerSec)
+# TYPE windows_net_bytes_sent_total counter
+windows_net_bytes_sent_total{nic="Realtek PCIe GbE Family Controller"} 1.53019617955e+11
+# HELP windows_net_current_bandwidth_bytes (Network.CurrentBandwidth)
+# TYPE windows_net_current_bandwidth_bytes gauge
+windows_net_current_bandwidth_bytes{nic="Realtek PCIe GbE Family Controller"} 1.25e+08
+# HELP windows_net_packets_received_errors_total (Network.PacketsReceivedErrors)
+# TYPE windows_net_packets_received_errors_total counter
+windows_net_packets_received_errors_total{nic="Realtek PCIe GbE Family Controller"} 0
+# HELP windows_net_packets_outbound_errors_total (Network.PacketsOutboundErrors)
+# TYPE windows_net_packets_outbound_errors_total counter
+windows_net_packets_outbound_errors_total{nic="Realtek PCIe GbE Family Controller"} 0
+# HELP windows_system_boot_time_timestamp Unix timestamp of system boot time
+# TYPE windows_system_boot_time_timestamp gauge
+windows_system_boot_time_timestamp 1.781590963e+09

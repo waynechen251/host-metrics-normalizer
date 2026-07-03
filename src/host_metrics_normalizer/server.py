@@ -80,6 +80,8 @@ def make_handler(
                 self._handle_health()
             elif path.startswith("/debug/"):
                 self._handle_debug(path)
+            elif path == "/":
+                self._redirect(config.server.metrics_path)
             else:
                 self._write_json(404, {"error": "not found"})
 
@@ -130,6 +132,12 @@ def make_handler(
                 }
             )
             self._write_json(200, payload)
+
+        def _redirect(self, location: str) -> None:
+            self.send_response(302)
+            self.send_header("Location", location)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
 
         def _write_json(self, status: int, payload: dict) -> None:
             body = json.dumps(payload).encode("utf-8")

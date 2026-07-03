@@ -11,26 +11,46 @@ from .normalized import NormalizedSeries
 
 _INFO_METRIC_HELP = {
     "host_asset_info": "Static host asset metadata",
-    "host_os_info": "Detected host operating system information",
 }
 
 _METRIC_HELP = {
+    "host_os_info": "Detected host operating system information",
     "host_cpu_usage_percent": "Normalized host CPU usage percentage",
     "host_cpu_threads_total": "Normalized host logical CPU threads total",
+    "host_cpu_cores_total": "Normalized host physical CPU cores total",
+    "host_cpu_sockets_total": "Normalized host CPU sockets total",
+    "host_cpu_info": "Normalized host CPU model information",
     "host_memory_bytes_total": "Normalized host physical memory total in bytes",
     "host_memory_bytes_available": "Normalized host physical memory available in bytes",
     "host_memory_usage_percent": "Normalized host memory usage percentage",
+    "host_memory_swap_bytes_total": "Normalized host swap/pagefile total in bytes",
+    "host_memory_swap_usage_percent": "Normalized host swap/pagefile usage percentage",
     "host_filesystem_size_bytes": "Normalized host filesystem size in bytes",
     "host_filesystem_free_bytes": "Normalized host filesystem free bytes",
     "host_filesystem_usage_percent": "Normalized host filesystem usage percentage",
+    "host_disk_queue_length": "Normalized host physical disk queue length",
+    "host_disk_read_bytes_total": "Normalized host physical disk read bytes total",
+    "host_disk_write_bytes_total": "Normalized host physical disk write bytes total",
+    "host_disk_reads_total": "Normalized host physical disk read operations total",
+    "host_disk_writes_total": "Normalized host physical disk write operations total",
     "host_network_receive_bytes_total": "Normalized host network receive bytes total",
     "host_network_transmit_bytes_total": "Normalized host network transmit bytes total",
+    "host_network_receive_errors_total": "Normalized host network receive errors total",
+    "host_network_transmit_errors_total": "Normalized host network transmit errors total",
+    "host_network_link_up": "Normalized host network interface link status",
+    "host_network_speed_bits": "Normalized host network interface speed in bits per second",
     "host_uptime_seconds": "Normalized host uptime in seconds",
 }
 
 _COUNTER_METRICS = {
+    "host_disk_read_bytes_total",
+    "host_disk_write_bytes_total",
+    "host_disk_reads_total",
+    "host_disk_writes_total",
     "host_network_receive_bytes_total",
     "host_network_transmit_bytes_total",
+    "host_network_receive_errors_total",
+    "host_network_transmit_errors_total",
 }
 
 _ASSET_LABELS = (
