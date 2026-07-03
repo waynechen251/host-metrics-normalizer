@@ -5,13 +5,13 @@
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey)
 
 
-跨平台的 Prometheus 指標正規化匯出器（exporter），搭配 `windows_exporter` 或 `node_exporter` 部署在每台主機上，將不同作業系統的指標統一轉換為一致的 `host_*` schema，讓 Prometheus 與 Grafana 只需面對一套查詢邏輯。
+跨平台的 Prometheus 指標正規化匯出器（exporter），搭配 [`windows_exporter`](https://github.com/prometheus-community/windows_exporter) 或 [`node_exporter`](https://github.com/prometheus/node_exporter) 部署在每台主機上，將不同作業系統的指標統一轉換為一致的 `host_*` schema，讓 Prometheus 與 Grafana 只需面對一套查詢邏輯。
 
 > 本專案以 `.agent/spec/index.md` 為設計依據，實作會優先對齊該規格。
 
 ## 為什麼需要它
 
-`windows_exporter` 與 `node_exporter` 的指標名稱與 label 各自不同，導致 Grafana dashboard 與 PromQL 必須為 Windows 和 Linux 各維護一套。`host-metrics-normalizer` 並不取代這兩個 exporter，而是在本機額外抓取它們的資料、解析、正規化、補上資產（asset）中介資料後，對外只暴露一組統一的 `/metrics`：
+[`windows_exporter`](https://github.com/prometheus-community/windows_exporter) 與 [`node_exporter`](https://github.com/prometheus/node_exporter) 的指標名稱與 label 各自不同，導致 Grafana dashboard 與 PromQL 必須為 Windows 和 Linux 各維護一套。`host-metrics-normalizer` 並不取代這兩個 exporter，而是在本機額外抓取它們的資料、解析、正規化、補上資產（asset）中介資料後，對外只暴露一組統一的 `/metrics`：
 
 ```text
 Windows Host
