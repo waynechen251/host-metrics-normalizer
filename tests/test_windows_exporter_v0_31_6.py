@@ -121,6 +121,27 @@ def test_windows_exporter_0316_full_fixture_normalizes_expected_metrics():
     )
     assert series["host_cpu_usage_percent"].value == pytest.approx(expected_cpu_usage)
 
+    assert series["host_gpu_info"].label_dict() == {
+        "host": "srv-app-01",
+        "gpu": "0",
+        "name": "NVIDIA GeForce RTX 3080",
+        "device_id": "PCI\\VEN_10DE&DEV_1B81",
+    }
+    assert series["host_gpu_memory_total_bytes"].label_dict() == {"host": "srv-app-01", "gpu": "0"}
+    assert series["host_gpu_memory_total_bytes"].value == pytest.approx(10737418240.0)
+    assert series["host_gpu_memory_used_bytes"].value == pytest.approx(2147483648.0)
+    assert series["host_gpu_memory_usage_percent"].value == pytest.approx(20.0)
+
+    # Two engtype="3D" samples (different process_id/eng) must be summed into one
+    # series, keeping engtype="Copy" separate — no per-process/per-engine detail.
+    gpu_engine_series = [s for s in snapshot.series if s.name == "host_gpu_engine_seconds_total"]
+    gpu_engine_by_type = {s.label_dict()["engtype"]: s.value for s in gpu_engine_series}
+    assert gpu_engine_by_type == {
+        "3D": pytest.approx(150.75),
+        "Copy": pytest.approx(10.0),
+    }
+    assert all(s.label_dict()["gpu"] == "0" for s in gpu_engine_series)
+
 
 def test_host_metrics_collector_emits_asset_and_normalized_series():
     config = build_config()
@@ -163,5 +184,10 @@ def test_host_metrics_collector_emits_asset_and_normalized_series():
     assert '# TYPE host_disk_read_bytes_total counter' in output
     assert (
         'host_disk_read_bytes_total{disk="0",host="srv-app-01"} 1.23456789e+08'
+        in output
+    )
+    assert '# TYPE host_gpu_engine_seconds_total counter' in output
+    assert (
+        'host_gpu_memory_used_bytes{gpu="0",host="srv-app-01"} 2.147483648e+09'
         in output
     )

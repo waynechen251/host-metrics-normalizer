@@ -76,3 +76,17 @@ windows_net_current_bandwidth_bytes{nic="Ethernet"} 125000000
 # HELP windows_system_boot_time_timestamp Unix timestamp of system boot time.
 # TYPE windows_system_boot_time_timestamp gauge
 windows_system_boot_time_timestamp 1.782815253304e+09
+# HELP windows_gpu_info A metric with a constant '1' value labeled with gpu device information.
+# TYPE windows_gpu_info gauge
+windows_gpu_info{bus_number="8",device_id="PCI\\VEN_10DE&DEV_1B81",function_number="0",luid="0x00000000_0x00010F8A",name="NVIDIA GeForce RTX 3080",phys="0"} 1
+# HELP windows_gpu_dedicated_video_memory_size_bytes The size, in bytes, of memory that is dedicated from video memory.
+# TYPE windows_gpu_dedicated_video_memory_size_bytes gauge
+windows_gpu_dedicated_video_memory_size_bytes{device_id="PCI\\VEN_10DE&DEV_1B81",luid="0x00000000_0x00010F8A"} 1.073741824e+10
+# HELP windows_gpu_adapter_memory_dedicated_bytes Dedicated GPU memory usage in bytes per physical GPU
+# TYPE windows_gpu_adapter_memory_dedicated_bytes gauge
+windows_gpu_adapter_memory_dedicated_bytes{device_id="PCI\\VEN_10DE&DEV_1B81",luid="0x00000000_0x00010F8A",phys="0"} 2.147483648e+09
+# HELP windows_gpu_engine_time_seconds Total running time of the GPU engine in seconds
+# TYPE windows_gpu_engine_time_seconds counter
+windows_gpu_engine_time_seconds{device_id="PCI\\VEN_10DE&DEV_1B81",eng="0",engtype="3D",luid="0x00000000_0x00010F8A",phys="0",process_id="1234"} 120.5
+windows_gpu_engine_time_seconds{device_id="PCI\\VEN_10DE&DEV_1B81",eng="1",engtype="3D",luid="0x00000000_0x00010F8A",phys="0",process_id="4321"} 30.25
+windows_gpu_engine_time_seconds{device_id="PCI\\VEN_10DE&DEV_1B81",eng="0",engtype="Copy",luid="0x00000000_0x00010F8A",phys="0",process_id="5678"} 10

@@ -83,6 +83,8 @@ def test_windows_exporter_0306_full_fixture_normalizes_expected_metrics():
     assert "host_cpu_info" not in series
     assert "host_memory_swap_bytes_total" not in series
     assert "host_network_link_up" not in series
+    # 0.30.6 has no `gpu` collector at all; host_gpu_* must be entirely absent.
+    assert not any(name.startswith("host_gpu_") for name in series)
 
     assert series["host_memory_bytes_total"].value == pytest.approx(25634922496.0)
     assert series["host_memory_bytes_available"].value == pytest.approx(5048688640.0)

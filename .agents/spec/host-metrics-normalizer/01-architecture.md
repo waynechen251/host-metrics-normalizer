@@ -71,7 +71,7 @@ host-metrics-normalizer/
   README.md
   AGENTS.md
   pyproject.toml
-  .agent/
+  .agents/
     spec/
       index.md
       host-metrics-normalizer/

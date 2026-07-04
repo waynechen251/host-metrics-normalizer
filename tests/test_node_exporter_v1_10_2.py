@@ -174,3 +174,5 @@ def test_host_metrics_collector_emits_asset_and_normalized_series():
     )
     assert '# TYPE host_network_receive_bytes_total counter' in output
     assert '# TYPE host_disk_read_bytes_total counter' in output
+    # node_exporter has no GPU data source; host_gpu_* must never appear on Linux.
+    assert 'host_gpu_' not in output

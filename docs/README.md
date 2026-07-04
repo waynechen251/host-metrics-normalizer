@@ -14,3 +14,4 @@
 - [`filesystem`](metrics.filesystem.md) — 檔案系統容量與使用率
 - [`disk`](metrics.disk.md) — 實體磁碟 I/O 與佇列長度
 - [`network`](metrics.network.md) — 網路介面流量、錯誤、連線狀態與速度
+- [`gpu`](metrics.gpu.md) — GPU 裝置資訊、記憶體用量與引擎忙碌時間(僅 Windows)

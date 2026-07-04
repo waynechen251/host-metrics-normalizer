@@ -115,3 +115,21 @@ def test_windows_exporter_0317_full_fixture_normalizes_expected_metrics():
         / (6844.765625 + 279.484375 + 6710.78125 + 413.46875)
     )
     assert series["host_cpu_usage_percent"].value == pytest.approx(expected_cpu_usage)
+
+    assert series["host_gpu_info"].label_dict() == {
+        "host": "srv-app-01",
+        "gpu": "0",
+        "name": "NVIDIA GeForce RTX 3080",
+        "device_id": "PCI\\VEN_10DE&DEV_1B81",
+    }
+    assert series["host_gpu_memory_total_bytes"].value == pytest.approx(10737418240.0)
+    assert series["host_gpu_memory_used_bytes"].value == pytest.approx(2147483648.0)
+    assert series["host_gpu_memory_usage_percent"].value == pytest.approx(20.0)
+
+    gpu_engine_series = [s for s in snapshot.series if s.name == "host_gpu_engine_seconds_total"]
+    gpu_engine_by_type = {s.label_dict()["engtype"]: s.value for s in gpu_engine_series}
+    assert gpu_engine_by_type == {
+        "3D": pytest.approx(150.75),
+        "Copy": pytest.approx(10.0),
+    }
+    assert all(s.label_dict()["gpu"] == "0" for s in gpu_engine_series)

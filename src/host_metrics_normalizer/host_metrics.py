@@ -40,6 +40,11 @@ _METRIC_HELP = {
     "host_network_link_up": "Normalized host network interface link status",
     "host_network_speed_bits": "Normalized host network interface speed in bits per second",
     "host_uptime_seconds": "Normalized host uptime in seconds",
+    "host_gpu_info": "Normalized GPU device information",
+    "host_gpu_memory_total_bytes": "Normalized host GPU dedicated video memory total in bytes",
+    "host_gpu_memory_used_bytes": "Normalized host GPU dedicated memory usage in bytes",
+    "host_gpu_memory_usage_percent": "Normalized host GPU memory usage percentage",
+    "host_gpu_engine_seconds_total": "Normalized host GPU engine busy time total in seconds",
 }
 
 _COUNTER_METRICS = {
@@ -51,6 +56,7 @@ _COUNTER_METRICS = {
     "host_network_transmit_bytes_total",
     "host_network_receive_errors_total",
     "host_network_transmit_errors_total",
+    "host_gpu_engine_seconds_total",
 }
 
 _ASSET_LABELS = (

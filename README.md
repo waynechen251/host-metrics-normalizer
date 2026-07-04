@@ -128,7 +128,7 @@ nssm install host-metrics-normalizer "C:\Path\To\host-metrics-normalizer.exe" "-
 
 ## 專案狀態
 
-目前為早期開發階段（pre-1.0），介面與 metric 命名仍可能調整。詳細開發階段規劃可參考 [`08-roadmap.md`](.agent/spec/host-metrics-normalizer/08-roadmap.md)。
+目前為早期開發階段（pre-1.0），介面與 metric 命名仍可能調整。詳細開發階段規劃可參考 [`08-roadmap.md`](.agents/spec/host-metrics-normalizer/08-roadmap.md)。
 
 ## 開發與貢獻
 
@@ -139,7 +139,7 @@ pip install -e .[dev]
 python -m pytest
 ```
 
-送出 PR 前請確保測試通過。若你是使用 AI coding agent 協助開發，可參考 [AGENTS.md](AGENTS.md) 的 agent 專用規則；本專案的完整設計規格則位於 [`.agent/spec/`](.agent/spec/index.md)。
+送出 PR 前請確保測試通過。若你是使用 AI coding agent 協助開發，可參考 [AGENTS.md](AGENTS.md) 的 agent 專用規則；本專案的完整設計規格則位於 [`.agents/spec/`](.agents/spec/index.md)。
 
 ## 授權
 

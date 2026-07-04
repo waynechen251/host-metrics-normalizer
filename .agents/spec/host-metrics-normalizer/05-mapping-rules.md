@@ -4,7 +4,7 @@
 
 ### 10.1 Windows exporter mapping
 
-Phase 3 先以 `windows_exporter 0.30.6`、`0.31.6`、`0.31.7` 的 exact version registry 為準(見 `.agent/spec/metrics-mapping/windows_exporter/` 對應版本的官方 collector 文件)。
+Phase 3 先以 `windows_exporter 0.30.6`、`0.31.6`、`0.31.7` 的 exact version registry 為準(見 `.agents/spec/metrics-mapping/windows_exporter/` 對應版本的官方 collector 文件)。
 normalizer 只在版本完全符合時套用 Windows mapping；未列版本先視為 unsupported，不輸出 `host_*` 正規化指標。
 
 `windows_cpu_time_total`/`windows_net_bytes_received_total`/`windows_net_bytes_sent_total` 等 counter 類指標，經 `prometheus_client` parser 解析後 family name 會被去掉 `_total` 後綴（已用實際安裝的 library 驗證過），因此程式碼一律用「帶 `_total` 的官方名稱」與「去掉後綴的裸名稱」雙名稱 fallback 查找。
@@ -77,11 +77,11 @@ host_uptime_seconds
 
 `host_cpu_cores_total`/`host_cpu_sockets_total`/`host_cpu_info` 依賴非預設啟用的 `cpu_info` collector,實務上經常缺席,屬預期常態,會反映在 `missing_metrics`。`host_memory_swap_*` 依賴 `pagefile` collector,雖文件標示預設啟用,但實測發現不一定會輸出,同樣視為常態缺席。`host_network_link_up` 依賴 `windows_net_nic_operation_status`,實測也不一定存在。
 
-以上映射已用官方 collector 文件(`.agent/spec/metrics-mapping/windows_exporter/{0.30.6,0.31.6,0.31.7}/`)與一台實機(Windows 11 Pro,windows_exporter 0.30.6,`http://127.0.0.1:9182/metrics`)的即時擷取資料交叉驗證。
+以上映射已用官方 collector 文件(`.agents/spec/metrics-mapping/windows_exporter/{0.30.6,0.31.6,0.31.7}/`)與一台實機(Windows 11 Pro,windows_exporter 0.30.6,`http://127.0.0.1:9182/metrics`)的即時擷取資料交叉驗證。
 
 ### 10.2 Node exporter mapping
 
-Phase 3 先以 `node_exporter 1.10.2` 的 exact version registry 為準(見 `.agent/spec/metrics-mapping/node_exporter/1.10.2/`)。跟 windows_exporter 一樣,normalizer 只在版本完全符合時套用 Linux mapping;未列版本先視為 unsupported,不輸出 `host_*` 正規化指標。
+Phase 3 先以 `node_exporter 1.10.2` 的 exact version registry 為準(見 `.agents/spec/metrics-mapping/node_exporter/1.10.2/`)。跟 windows_exporter 一樣,normalizer 只在版本完全符合時套用 Linux mapping;未列版本先視為 unsupported,不輸出 `host_*` 正規化指標。
 
 來源可能包含：
 
@@ -159,7 +159,7 @@ Counter 類指標(`node_cpu_seconds_total`、`node_disk_*_total`、`node_network
 
 `node_network_speed_bytes` 若介面沒有協商到速度(常見於 bridge、down 狀態的介面),核心會透過 sysfs 回報 `-1`,node_exporter 原樣透傳成負的 bytes/sec;mapping 會過濾負值,該介面直接不輸出 `host_network_speed_bits`(不是缺席整個 family,只是該筆 sample 略過)。這是拿內部真實 Linux 主機(有大量 Docker bridge/veth 介面)實測後才發現的落差,`node_cpu_info` 因為未啟用 `--collector.cpu.info` 而缺席則完全符合預期。
 
-以上映射已用 node_exporter 專案自己的 end-to-end 測試黃金輸出(`.agent/spec/metrics-mapping/node_exporter/1.10.2/e2e-output-linux.txt`)與本機 clone 的 Go 原始碼(`collector/*.go`)交叉驗證;`node_uname_info`/`node_filesystem_*`/`node_memory_MemAvailable_bytes`/network rx-tx 的 sample 數值因為 node_exporter 自己的 e2e 測試腳本刻意停用或濾除而無法從這份輸出核對到實際數值(collector 名稱與 labels 已改查 Go 原始碼確認),等使用者拿內部真實 Linux 主機實測後再校正。
+以上映射已用 node_exporter 專案自己的 end-to-end 測試黃金輸出(`.agents/spec/metrics-mapping/node_exporter/1.10.2/e2e-output-linux.txt`)與本機 clone 的 Go 原始碼(`collector/*.go`)交叉驗證;`node_uname_info`/`node_filesystem_*`/`node_memory_MemAvailable_bytes`/network rx-tx 的 sample 數值因為 node_exporter 自己的 e2e 測試腳本刻意停用或濾除而無法從這份輸出核對到實際數值(collector 名稱與 labels 已改查 Go 原始碼確認),等使用者拿內部真實 Linux 主機實測後再校正。
 
 ### 10.3 Rate 類指標處理
 
