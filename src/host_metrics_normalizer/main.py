@@ -12,8 +12,8 @@ from .cache import RawMetricsCache
 from .config import ConfigError, load_config
 from .logging_config import setup_logging
 from .metrics import NormalizerMetrics
+from .refresher import MetricsRefresher
 from .server import HealthState, NormalizerHTTPServer
-from .worker import ScrapeWorker
 
 DEFAULT_CONFIG_WINDOWS = r"C:\Program Files\host-metrics-normalizer\config.yml"
 DEFAULT_CONFIG_LINUX = "/etc/host-metrics-normalizer/config.yml"
@@ -57,7 +57,8 @@ def main(argv: list[str] | None = None) -> int:
     cache = RawMetricsCache()
     metrics = NormalizerMetrics(version=__version__, config_version="manual", config=config, cache=cache)
     health = HealthState(version=__version__)
-    server = NormalizerHTTPServer(config, metrics, health, cache)
+    refresher = MetricsRefresher(config, cache, metrics, health)
+    server = NormalizerHTTPServer(config, metrics, health, cache, refresher)
 
     stop_event = threading.Event()
 
@@ -75,15 +76,14 @@ def main(argv: list[str] | None = None) -> int:
         config.server.listen_address,
         server.server_address[1],
     )
-
-    worker = ScrapeWorker(config, cache, metrics, health, stop_event)
-    worker_thread = threading.Thread(target=worker.run, daemon=True)
-    worker_thread.start()
-    log.info("Scrape worker started for %s", config.source_exporter.endpoint)
+    log.info(
+        "On-demand scrape mode: each /metrics request triggers a live scrape of %s (timeout=%ss)",
+        config.source_exporter.endpoint,
+        config.source_exporter.timeout_seconds,
+    )
 
     stop_event.wait()
     server.shutdown()
-    worker_thread.join(timeout=5)
     server_thread.join(timeout=5)
 
     log.info("Server stopped")

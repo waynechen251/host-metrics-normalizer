@@ -18,7 +18,6 @@ source_exporter:
 
 cache:
   enabled: true
-  ttl_seconds: 60
   stale_after_seconds: 180
 
 asset:
@@ -74,7 +73,6 @@ def test_full_config_loads_all_sections(tmp_path):
     assert config.source_exporter.timeout_seconds == 3
 
     assert config.cache.enabled is True
-    assert config.cache.ttl_seconds == 60
     assert config.cache.stale_after_seconds == 180
 
     assert config.asset.asset_id == "ASSET-001"
@@ -94,7 +92,7 @@ def test_minimal_config_falls_back_to_defaults(tmp_path):
 
     assert config.server.listen_port == 9527
     assert config.server.debug_enabled is True
-    assert config.cache.ttl_seconds == 60
+    assert config.cache.stale_after_seconds == 180
     assert config.asset.asset_id == ""
     assert config.labels == {}
     assert config.normalization.filesystem_ignore_regex == ()
@@ -126,6 +124,22 @@ def test_source_exporter_type_field_is_ignored_if_present(tmp_path):
 
     assert config.source_exporter.endpoint == "http://127.0.0.1:9100/metrics"
     assert not hasattr(config.source_exporter, "type")
+
+
+def test_cache_ttl_seconds_field_is_ignored_if_present(tmp_path):
+    """ttl_seconds is no longer a config field now that scraping is request-driven
+    instead of a background poll interval. A stray `ttl_seconds:` key from an
+    older config.yml should simply be ignored like any unknown field, so
+    upgrading the binary doesn't break an existing deployed config file."""
+    config_path = write_config(
+        tmp_path,
+        "source_exporter:\n  endpoint: \"http://127.0.0.1:9100/metrics\"\ncache:\n  ttl_seconds: 999\n  stale_after_seconds: 180\n",
+    )
+
+    config = load_config(config_path)
+
+    assert config.cache.stale_after_seconds == 180
+    assert not hasattr(config.cache, "ttl_seconds")
 
 
 def test_missing_file_raises(tmp_path):

@@ -4,15 +4,18 @@ import json
 import logging
 import socketserver
 import threading
-import time
 from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from typing import TYPE_CHECKING
 
-from prometheus_client.exposition import CONTENT_TYPE_LATEST, generate_latest
+from prometheus_client.exposition import CONTENT_TYPE_LATEST
 
 from .cache import RawMetricsCache
 from .config import AppConfig
 from .metrics import NormalizerMetrics
+
+if TYPE_CHECKING:
+    from .refresher import MetricsRefresher
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +71,7 @@ def make_handler(
     metrics: NormalizerMetrics,
     health: HealthState,
     cache: RawMetricsCache,
+    refresher: MetricsRefresher,
 ) -> type[BaseHTTPRequestHandler]:
     class NormalizerRequestHandler(BaseHTTPRequestHandler):
         server_version = "host-metrics-normalizer/0.1"
@@ -86,9 +90,7 @@ def make_handler(
                 self._write_json(404, {"error": "not found"})
 
         def _handle_metrics(self) -> None:
-            stale = cache.is_stale(config.cache.stale_after_seconds, time.monotonic())
-            metrics.refresh_stale(stale)
-            output = generate_latest(metrics.registry)
+            output = refresher.refresh_and_render()
             self.send_response(200)
             self.send_header("Content-Type", CONTENT_TYPE_LATEST)
             self.send_header("Content-Length", str(len(output)))
@@ -176,6 +178,11 @@ class _NoFqdnHTTPServer(ThreadingHTTPServer):
         self.server_name = host
         self.server_port = port
 
+    # Each /metrics request can now block on a live scrape (up to
+    # source_exporter.timeout_seconds) instead of returning near-instantly, so a
+    # shutdown must not wait on in-flight request threads to finish on their own.
+    daemon_threads = True
+
 
 class NormalizerHTTPServer:
     def __init__(
@@ -184,8 +191,9 @@ class NormalizerHTTPServer:
         metrics: NormalizerMetrics,
         health: HealthState,
         cache: RawMetricsCache,
+        refresher: MetricsRefresher,
     ):
-        handler_cls = make_handler(config, metrics, health, cache)
+        handler_cls = make_handler(config, metrics, health, cache, refresher)
         self._httpd = _NoFqdnHTTPServer(
             (config.server.listen_address, config.server.listen_port), handler_cls
         )

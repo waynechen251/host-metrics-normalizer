@@ -62,6 +62,8 @@ host_source_exporter_up{exporter="node_exporter"} 1
 | `up = 1` 且 `host_source_exporter_up = 1` | normalizer 與底層 exporter 都正常 |
 | `host_metrics_stale = 1` | normalizer 有 cache，但資料已過期 |
 
+`host_metrics_stale` 是逐請求即時計算的（見 [06-operations.md](06-operations.md) §11.1）：只要有一次 `/metrics` 請求剛好抓取成功，該次回應就會立刻變回 0，不需要等待任何背景排程。
+
 ## 19. 專案目錄建議
 
 ```text

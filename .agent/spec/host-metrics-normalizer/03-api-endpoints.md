@@ -13,6 +13,8 @@
 3. asset info。
 4. 標準化後的 host metrics。
 
+每次被存取都會即時同步抓取一次 source exporter，詳見 [06-operations.md](06-operations.md) §11.1。
+
 ### 7.2 /healthz
 
 給人工或監控檢查 normalizer 本體狀態。
@@ -33,6 +35,8 @@
 ```
 
 `exporter` / `exporter_version` / `os_family` 為自動偵測結果（見 [02-tech-and-config.md](02-tech-and-config.md) §6.2），尚未偵測成功前固定為 `"unknown"` / `""` / `"unknown"`。
+
+`/healthz` 本身不會主動觸發抓取，只反映最近一次由 `/metrics` 請求觸發的抓取結果；服務啟動後若尚未有任何 `/metrics` 請求進來，會維持在上述預設值。
 
 ### 7.3 /debug/raw
 

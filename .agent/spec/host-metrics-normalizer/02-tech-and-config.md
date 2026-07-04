@@ -90,7 +90,6 @@ source_exporter:
 
 cache:
   enabled: true
-  ttl_seconds: 60
   stale_after_seconds: 180
 
 asset:

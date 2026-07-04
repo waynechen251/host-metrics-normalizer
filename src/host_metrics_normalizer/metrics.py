@@ -99,9 +99,6 @@ class NormalizerMetrics:
         self.last_scrape_success.set(1 if snapshot.last_scrape_success else 0)
         self.stale.set(1 if stale else 0)
 
-    def refresh_stale(self, stale: bool) -> None:
-        self.stale.set(1 if stale else 0)
-
     def record_normalizer_error(self) -> None:
         self.errors.inc()
 

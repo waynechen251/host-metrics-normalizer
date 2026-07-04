@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import threading
 import time
+from typing import TYPE_CHECKING
+
+from prometheus_client.exposition import generate_latest
 
 from .cache import RawMetricsCache
 from .config import AppConfig
@@ -9,34 +12,37 @@ from .detect import detect_from_raw
 from .normalization import normalize_exporter_metrics
 from .metrics import NormalizerMetrics
 from .scraper import scrape
-from .server import HealthState
+
+if TYPE_CHECKING:
+    from .server import HealthState
 
 
-class ScrapeWorker:
+class MetricsRefresher:
     def __init__(
         self,
         config: AppConfig,
         cache: RawMetricsCache,
         metrics: NormalizerMetrics,
         health: HealthState,
-        stop_event: threading.Event,
     ):
         self._config = config
         self._endpoint = config.source_exporter.endpoint
         self._timeout = config.source_exporter.timeout_seconds
-        self._interval = max(1, config.cache.ttl_seconds)
         self._stale_after = config.cache.stale_after_seconds
         self._cache = cache
         self._metrics = metrics
         self._health = health
-        self._stop = stop_event
+        # Serializes scrape+render across concurrent /metrics requests: NormalizerMetrics
+        # tracks the current exporter label with an unlocked clear()-then-relabel sequence
+        # (see update_source_exporter) that isn't safe under concurrent writers.
+        self._lock = threading.Lock()
 
-    def run(self) -> None:
-        while not self._stop.is_set():
-            self._scrape_once()
-            self._stop.wait(self._interval)
+    def refresh_and_render(self) -> bytes:
+        with self._lock:
+            self._refresh_locked()
+            return generate_latest(self._metrics.registry)
 
-    def _scrape_once(self) -> None:
+    def _refresh_locked(self) -> None:
         result = scrape(self._endpoint, self._timeout)
         monotonic_now = time.monotonic()
         wall_now = time.time()

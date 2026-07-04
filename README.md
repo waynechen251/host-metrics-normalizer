@@ -28,7 +28,7 @@ Grafana     → 只查詢 host_* 指標
 - 統一 `host_*` metric schema，同一套 Grafana dashboard 可同時呈現 Windows 與 Linux 主機。
 - 保留 Prometheus 原生 `up`，並額外暴露 `host_source_exporter_up` 偵測底層 exporter 是否健康。
 - 補上資產資訊（owner、environment、location、role 等），輸出 `host_asset_info` / `host_os_info` / `host_hardware_info`。
-- 背景定期 scrape 並快取，`/metrics` 不會同步阻塞；來源 exporter 故障時仍可服務並標示 `host_metrics_stale`。
+- `/metrics` 被存取時即時同步抓取本機來源 exporter，語意與 `windows_exporter`/`node_exporter` 本身「被 scrape 才收集」的模型一致；來源 exporter 故障時仍可服務上一次成功資料並標示 `host_metrics_stale`。
 - 單一 Python 服務，無需資料庫、Web UI 或 Docker，可自行包裝為系統服務（Windows 用 NSSM、Linux 用 systemd）常駐執行。
 
 ## 安裝
@@ -78,7 +78,7 @@ python -m host_metrics_normalizer --config ./config.yml
 |---|---|
 | `server` | 監聽位址/連接埠、`/metrics` 與 `/healthz` 路徑、是否開放 debug 端點 |
 | `source_exporter` | 來源 `windows_exporter` / `node_exporter` 的 endpoint 與逾時秒數 |
-| `cache` | 背景 scrape 的快取行為（TTL、多久沒更新視為 stale） |
+| `cache` | 即時抓取失敗時的降級快取行為（多久沒有成功抓取視為 stale） |
 | `asset` | 補充到 `host_asset_info` 的資產中介資料（owner、environment、location 等） |
 | `labels` | 額外附加到輸出指標上的自訂 label |
 | `normalization` | 正規化時要忽略的檔案系統/網卡名稱規則 |

@@ -48,7 +48,6 @@ class SourceExporterConfig:
 @dataclass(frozen=True)
 class CacheConfig:
     enabled: bool = True
-    ttl_seconds: int = 60
     stale_after_seconds: int = 180
 
     @classmethod
