@@ -96,6 +96,10 @@ python -m host_metrics_normalizer --config ./config.yml
 
 `/debug/*` 兩個端點受 `server.debug_enabled` 控制，關閉時回傳 404；根路徑 `/` 會 302 導向 `/metrics`。
 
+## 指標
+
+完整的 `host_*` 指標清單（名稱、型別、Label、來源對照、PromQL 查詢與告警範例）請參考 [`docs/`](docs/README.md)。
+
 ## 部署為系統服務
 
 本專案不隨附安裝腳本，以下是常見的自行包裝方式：
