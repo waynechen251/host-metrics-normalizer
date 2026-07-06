@@ -7,6 +7,7 @@
 prometheus_client==0.25.0
 PyYAML==6.0.3
 requests==2.34.2
+pywin32==312; sys_platform == "win32"
 
 # --- Transitive dependencies of requests ---
 certifi==2026.6.17

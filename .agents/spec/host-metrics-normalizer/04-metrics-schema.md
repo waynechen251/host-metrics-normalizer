@@ -216,3 +216,18 @@ host_network_speed_bits{host="srv-app-01", nic="Ethernet"} 1000000000
 ```text
 host_uptime_seconds{host="srv-app-01"} 1234567
 ```
+
+### 9.11 GPU
+
+與 §9.1–§9.10 不同：`host_gpu_*` **不是**由來源 exporter 的指標正規化而來，而是 normalizer 自行呼叫本機 OS 原生 API 採集(Windows：WMI + Performance Counters；Linux：sysfs),完全獨立於 `source_exporter` 是否抓取成功。詳見 [05-mapping-rules.md](05-mapping-rules.md) 與 `docs/metrics.gpu.md`。
+
+```text
+host_gpu_info{host="srv-app-01", gpu="0", name="NVIDIA GeForce RTX 3080", device_id="10de:1b81"} 1
+host_gpu_memory_total_bytes{host="srv-app-01", gpu="0"} 10737418240
+host_gpu_memory_used_bytes{host="srv-app-01", gpu="0"} 2147483648
+host_gpu_memory_usage_percent{host="srv-app-01", gpu="0"} 20.0
+host_gpu_utilization_percent{host="srv-app-01", gpu="0"} 42.5
+host_gpu_temperature_celsius{host="srv-app-01", gpu="0"} 65.0
+```
+
+`host_gpu_temperature_celsius` 僅 Linux 輸出;Windows 無廠商中立的溫度 API，完全不會出現此系列。由 `gpu.enabled`(預設 `true`)控制是否啟用整組採集。

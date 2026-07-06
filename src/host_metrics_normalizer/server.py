@@ -108,6 +108,8 @@ def make_handler(
                 self._handle_debug_raw()
             elif path == "/debug/normalized":
                 self._handle_debug_normalized()
+            elif path == "/debug/gpu":
+                self._handle_debug_gpu()
             else:
                 self._write_json(404, {"error": "not found"})
 
@@ -134,6 +136,14 @@ def make_handler(
                 }
             )
             self._write_json(200, payload)
+
+        def _handle_debug_gpu(self) -> None:
+            gpu_collector = metrics.gpu_collector
+            if gpu_collector is None:
+                self._write_json(404, {"error": "gpu collection disabled"})
+                return
+            series = gpu_collector.collect_series()
+            self._write_json(200, {"series": [item.to_dict() for item in series]})
 
         def _redirect(self, location: str) -> None:
             self.send_response(302)

@@ -73,3 +73,17 @@
 | 已有快取資料 | 200 + JSON 格式的 normalized snapshot |
 
 normalized snapshot 至少應包含 exporter type / version / os_family、support status、host label、已產生的 normalized series 與 missing metrics 資訊。
+
+### 7.5 /debug/gpu
+
+人工排查用，用途與 §7.3/§7.4 相同，但資料來源不同：`host_gpu_*` 不經過 `MetricsRefresher`/`RawMetricsCache`（見 [05-mapping-rules.md](05-mapping-rules.md) §10.4），而是直接呼叫與 `/metrics` 相同的 `GpuMetricsCollector.collect_series()`，回傳本次即時採集到的 GPU 原始 series（`NormalizedSeries.to_dict()` 陣列），不是讀快取。
+
+回應狀態：
+
+| 情境 | 狀態碼 |
+|---|---|
+| `debug_enabled: false` | 404（不揭露端點存在） |
+| `gpu.enabled: false` | 404（`{"error": "gpu collection disabled"}`） |
+| 正常 | 200 + `{"series": [...]}` |
+
+安全要求與 §7.3 相同。

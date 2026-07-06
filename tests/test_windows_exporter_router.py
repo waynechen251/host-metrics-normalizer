@@ -7,6 +7,7 @@ from host_metrics_normalizer.config import (
     AppConfig,
     AssetConfig,
     CacheConfig,
+    GpuConfig,
     NormalizationConfig,
     ServerConfig,
     SourceExporterConfig,
@@ -43,6 +44,7 @@ def build_config() -> AppConfig:
         ),
         labels={},
         normalization=NormalizationConfig(),
+        gpu=GpuConfig(enabled=False),
     )
 
 

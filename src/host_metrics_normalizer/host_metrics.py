@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import socket
-from typing import Iterable
+from typing import Iterable, Iterator
 
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 
@@ -44,7 +44,8 @@ _METRIC_HELP = {
     "host_gpu_memory_total_bytes": "Normalized host GPU dedicated video memory total in bytes",
     "host_gpu_memory_used_bytes": "Normalized host GPU dedicated memory usage in bytes",
     "host_gpu_memory_usage_percent": "Normalized host GPU memory usage percentage",
-    "host_gpu_engine_seconds_total": "Normalized host GPU engine busy time total in seconds",
+    "host_gpu_utilization_percent": "Normalized host GPU utilization percentage",
+    "host_gpu_temperature_celsius": "Normalized host GPU temperature in degrees Celsius (Linux only)",
 }
 
 _COUNTER_METRICS = {
@@ -56,7 +57,6 @@ _COUNTER_METRICS = {
     "host_network_transmit_bytes_total",
     "host_network_receive_errors_total",
     "host_network_transmit_errors_total",
-    "host_gpu_engine_seconds_total",
 }
 
 _ASSET_LABELS = (
@@ -87,23 +87,7 @@ class HostMetricsCollector:
         if normalized is None or not normalized.series:
             return
 
-        grouped: dict[str, list[NormalizedSeries]] = {}
-        for series in normalized.series:
-            grouped.setdefault(series.name, []).append(series)
-
-        for metric_name in sorted(grouped):
-            series_list = grouped[metric_name]
-            label_names = _merge_label_names(series_list)
-            family_cls = CounterMetricFamily if metric_name in _COUNTER_METRICS else GaugeMetricFamily
-            family = family_cls(
-                metric_name,
-                _METRIC_HELP.get(metric_name, metric_name.replace("_", " ")),
-                labels=list(label_names),
-            )
-            for series in series_list:
-                label_values = [series.label_dict().get(label_name, "") for label_name in label_names]
-                family.add_metric(label_values, series.value)
-            yield family
+        yield from build_metric_families(normalized.series)
 
     def _asset_family(self, host: str) -> GaugeMetricFamily:
         asset = self._config.asset
@@ -123,6 +107,28 @@ class HostMetricsCollector:
             1.0,
         )
         return family
+
+
+def build_metric_families(
+    series: Iterable[NormalizedSeries],
+) -> Iterator[GaugeMetricFamily | CounterMetricFamily]:
+    grouped: dict[str, list[NormalizedSeries]] = {}
+    for item in series:
+        grouped.setdefault(item.name, []).append(item)
+
+    for metric_name in sorted(grouped):
+        series_list = grouped[metric_name]
+        label_names = _merge_label_names(series_list)
+        family_cls = CounterMetricFamily if metric_name in _COUNTER_METRICS else GaugeMetricFamily
+        family = family_cls(
+            metric_name,
+            _METRIC_HELP.get(metric_name, metric_name.replace("_", " ")),
+            labels=list(label_names),
+        )
+        for item in series_list:
+            label_values = [item.label_dict().get(label_name, "") for label_name in label_names]
+            family.add_metric(label_values, item.value)
+        yield family
 
 
 def _merge_label_names(series_list: Iterable[NormalizedSeries]) -> tuple[str, ...]:

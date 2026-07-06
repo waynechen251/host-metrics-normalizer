@@ -13,9 +13,6 @@ from .common import (
     _first_family_value,
     _first_label,
     _first_non_empty,
-    _gpu_engine_seconds,
-    _gpu_memory_metrics,
-    _gpu_phys_map,
     _labeled_series,
     _logical_disk_filesystem_map,
     _normalize_architecture,
@@ -270,44 +267,6 @@ def normalize(
         missing.append("windows_system_boot_time_timestamp")
     else:
         series.append(NormalizedSeries.from_mapping("host_uptime_seconds", uptime, {"host": host}))
-
-    # windows_exporter's `gpu` collector is opt-in (not enabled by default) and not
-    # present at all on 0.30.6, so absence here is expected/common, not an error.
-    gpu_info_family = families.get("windows_gpu_info")
-    if gpu_info_family is None:
-        missing.append("windows_gpu_info")
-        gpu_phys_map: dict[tuple[str, str], str] = {}
-    else:
-        gpu_phys_map = _gpu_phys_map(gpu_info_family)
-        for sample in getattr(gpu_info_family, "samples", ()):
-            labels = getattr(sample, "labels", {}) or {}
-            series.append(
-                NormalizedSeries.from_mapping(
-                    "host_gpu_info",
-                    1.0,
-                    {
-                        "host": host,
-                        "gpu": labels.get("phys", ""),
-                        "name": labels.get("name", ""),
-                        "device_id": labels.get("device_id", ""),
-                    },
-                )
-            )
-
-    gpu_total_family = families.get("windows_gpu_dedicated_video_memory_size_bytes")
-    gpu_used_family = families.get("windows_gpu_adapter_memory_dedicated_bytes")
-    if gpu_total_family is None:
-        missing.append("windows_gpu_dedicated_video_memory_size_bytes")
-    if gpu_used_family is None:
-        missing.append("windows_gpu_adapter_memory_dedicated_bytes")
-    if gpu_total_family is not None or gpu_used_family is not None:
-        series.extend(_gpu_memory_metrics(gpu_total_family, gpu_used_family, gpu_phys_map, host))
-
-    gpu_engine_family = families.get("windows_gpu_engine_time_seconds")
-    if gpu_engine_family is None:
-        missing.append("windows_gpu_engine_time_seconds")
-    else:
-        series.extend(_gpu_engine_seconds(gpu_engine_family, host))
 
     return NormalizedSnapshot(
         status="ok",

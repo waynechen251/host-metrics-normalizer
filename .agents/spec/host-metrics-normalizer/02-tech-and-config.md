@@ -121,6 +121,9 @@ normalization:
     - "^vEthernet"
     - "^docker"
     - "^br-"
+
+gpu:
+  enabled: true
 ```
 
 ### 6.2 source_exporter 類型自動偵測

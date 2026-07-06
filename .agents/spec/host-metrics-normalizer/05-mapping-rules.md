@@ -173,3 +173,7 @@ host_network_transmit_bytes_total
 ```
 
 `host_cpu_usage_percent` 與 `host_memory_usage_percent` 仍以 gauge 直接輸出；它們不是 counter-rate 轉換的結果。
+
+### 10.4 GPU 不屬於本節的 mapping registry
+
+`host_gpu_*`(§9.11)刻意**不**放進 §10.1/§10.2 的 exact-version registry,也不在 `normalizer/windows_exporter/`、`normalizer/node_exporter/` 任何版本檔案裡查找 `windows_gpu_*`/等效的 node_exporter 來源指標——早期版本確實這樣做過(從 `windows_gpu_*` mapping 而來),但因為資料不穩定(windows_exporter 的 `gpu` collector 是選用、僅兩個版本支援;node_exporter 完全沒有對應 collector)已經整個移除,改由 normalizer 自行呼叫本機 OS API 採集,與來源 exporter 版本完全脫鉤。之後新增 windows_exporter/node_exporter 版本支援時,**不要**把 GPU mapping 加回任何版本檔案;GPU 的實作細節見 `docs/metrics.gpu.md` 與 `src/host_metrics_normalizer/gpu/`。

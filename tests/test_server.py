@@ -16,6 +16,7 @@ from host_metrics_normalizer.config import (
     AppConfig,
     AssetConfig,
     CacheConfig,
+    GpuConfig,
     NormalizationConfig,
     ServerConfig,
     SourceExporterConfig,
@@ -34,7 +35,7 @@ def _read_fixture(name: str) -> str:
     return (FIXTURES_DIR / name).read_text(encoding="utf-8")
 
 
-def build_config(debug_enabled: bool = True) -> AppConfig:
+def build_config(debug_enabled: bool = True, gpu_enabled: bool = False) -> AppConfig:
     return AppConfig(
         server=ServerConfig(listen_address="127.0.0.1", listen_port=0, debug_enabled=debug_enabled),
         source_exporter=SourceExporterConfig(endpoint="http://127.0.0.1:9100/metrics"),
@@ -42,6 +43,7 @@ def build_config(debug_enabled: bool = True) -> AppConfig:
         asset=AssetConfig(),
         labels={},
         normalization=NormalizationConfig(),
+        gpu=GpuConfig(enabled=gpu_enabled),
     )
 
 
@@ -65,8 +67,13 @@ def running_server():
 
     servers = []
 
-    def factory(debug_enabled: bool = True, cache: RawMetricsCache | None = None):
-        server = _start(debug_enabled=debug_enabled, cache=cache)
+    def factory(
+        debug_enabled: bool = True,
+        cache: RawMetricsCache | None = None,
+        config: AppConfig | None = None,
+        metrics: NormalizerMetrics | None = None,
+    ):
+        server = _start(debug_enabled=debug_enabled, cache=cache, config=config, metrics=metrics)
         servers.append(server)
         return server
 
@@ -191,6 +198,7 @@ def test_metrics_end_to_end_hits_a_real_local_exporter_every_request():
         asset=AssetConfig(),
         labels={},
         normalization=NormalizationConfig(),
+        gpu=GpuConfig(enabled=False),
     )
     cache = RawMetricsCache()
     metrics = NormalizerMetrics(version="0.1.0", config=config, cache=cache)
@@ -322,6 +330,61 @@ def test_unknown_path_returns_404(running_server):
     status, _, _ = _get(server, "/does-not-exist")
 
     assert status == 404
+
+
+def test_debug_gpu_returns_404_when_debug_disabled(running_server):
+    server = running_server(debug_enabled=False)
+
+    status, _, _ = _get(server, "/debug/gpu")
+
+    assert status == 404
+
+
+def test_debug_gpu_returns_404_when_gpu_collection_disabled(running_server):
+    config = build_config(debug_enabled=True, gpu_enabled=False)
+    cache = RawMetricsCache()
+    metrics = NormalizerMetrics(version="0.1.0", config=config, cache=cache)
+    assert metrics.gpu_collector is None
+
+    server = running_server(cache=cache, config=config, metrics=metrics)
+
+    status, content_type, body = _get(server, "/debug/gpu")
+
+    assert status == 404
+    assert content_type == "application/json"
+    assert json.loads(body)["error"] == "gpu collection disabled"
+
+
+def test_debug_gpu_returns_series_json(running_server):
+    config = build_config(debug_enabled=True, gpu_enabled=True)
+    cache = RawMetricsCache()
+    metrics = NormalizerMetrics(version="0.1.0", config=config, cache=cache)
+    assert metrics.gpu_collector is not None
+
+    # Avoid touching real hardware/pywin32/sysfs in this HTTP-layer test: swap in a
+    # fake collect_series() that returns a canned series, matching how
+    # GpuMetricsCollector.collect_series() is the single call path shared by both
+    # the prometheus collect() route and this /debug/gpu route.
+    metrics.gpu_collector.collect_series = lambda: (
+        NormalizedSeries.from_mapping(
+            "host_gpu_info", 1.0, {"host": "srv-app-01", "gpu": "0", "name": "Fake GPU"}
+        ),
+    )
+
+    server = running_server(cache=cache, config=config, metrics=metrics)
+
+    status, content_type, body = _get(server, "/debug/gpu")
+
+    assert status == 200
+    assert content_type == "application/json"
+    payload = json.loads(body)
+    assert payload["series"] == [
+        {
+            "name": "host_gpu_info",
+            "value": 1.0,
+            "labels": {"host": "srv-app-01", "gpu": "0", "name": "Fake GPU"},
+        }
+    ]
 
 
 def test_root_path_redirects_to_metrics_path(running_server):

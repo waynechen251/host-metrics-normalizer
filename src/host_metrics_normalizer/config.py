@@ -91,6 +91,16 @@ class NormalizationConfig:
 
 
 @dataclass(frozen=True)
+class GpuConfig:
+    enabled: bool = True
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "GpuConfig":
+        known = _filter_known(data, set(cls.__dataclass_fields__))
+        return cls(**known)
+
+
+@dataclass(frozen=True)
 class AppConfig:
     server: ServerConfig
     source_exporter: SourceExporterConfig
@@ -98,6 +108,7 @@ class AppConfig:
     asset: AssetConfig
     labels: dict[str, str]
     normalization: NormalizationConfig
+    gpu: GpuConfig = field(default_factory=GpuConfig)
 
 
 def load_config(path: str | Path) -> AppConfig:
@@ -131,6 +142,7 @@ def load_config(path: str | Path) -> AppConfig:
             asset=AssetConfig.from_dict(data.get("asset") or {}),
             labels=labels,
             normalization=NormalizationConfig.from_dict(data.get("normalization") or {}),
+            gpu=GpuConfig.from_dict(data.get("gpu") or {}),
         )
     except ConfigError:
         raise

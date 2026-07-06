@@ -88,10 +88,17 @@ class NormalizerMetrics:
         self.last_scrape_success.set(0)
         self.stale.set(0)
 
+        self.gpu_collector = None
         if config is not None and cache is not None:
             from .host_metrics import HostMetricsCollector
 
             self.registry.register(HostMetricsCollector(config, cache))
+
+            if config.gpu.enabled:
+                from .gpu import GpuMetricsCollector
+
+                self.gpu_collector = GpuMetricsCollector(config)
+                self.registry.register(self.gpu_collector)
 
     def update_normalizer_scrape(self, snapshot: CacheSnapshot, stale: bool) -> None:
         self.scrape_duration.set(snapshot.last_scrape_duration)

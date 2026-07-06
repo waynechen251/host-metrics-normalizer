@@ -44,6 +44,9 @@ normalization:
   network_ignore_regex:
     - "^Loopback"
     - "^lo$"
+
+gpu:
+  enabled: false
 """
 
 MINIMAL_CONFIG = """
@@ -84,6 +87,8 @@ def test_full_config_loads_all_sections(tmp_path):
     assert "^/run" in config.normalization.filesystem_ignore_regex
     assert "^Loopback" in config.normalization.network_ignore_regex
 
+    assert config.gpu.enabled is False
+
 
 def test_minimal_config_falls_back_to_defaults(tmp_path):
     config_path = write_config(tmp_path, MINIMAL_CONFIG)
@@ -96,6 +101,7 @@ def test_minimal_config_falls_back_to_defaults(tmp_path):
     assert config.asset.asset_id == ""
     assert config.labels == {}
     assert config.normalization.filesystem_ignore_regex == ()
+    assert config.gpu.enabled is True
 
 
 def test_missing_source_exporter_section_raises(tmp_path):
