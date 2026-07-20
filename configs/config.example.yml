@@ -44,7 +44,8 @@ normalization:
     - "^docker"
     - "^br-"
 
-# GPU 指標由 normalizer 自行讀取本機 OS API(Windows: WMI/registry；Linux: sysfs)取得，
+# GPU 指標由 normalizer 自動偵測本機介面取得（NVIDIA 優先 NVML，否則使用 OS fallback），
 # 與 source_exporter 的抓取結果無關，即使 windows_exporter/node_exporter 掛掉也會照常輸出。
+# 不需要依 Windows/Linux 或 NVIDIA/AMD/Intel 增加個別設定。
 gpu:
   enabled: true

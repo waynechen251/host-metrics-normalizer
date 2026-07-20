@@ -82,6 +82,7 @@ python -m host_metrics_normalizer --config ./config.yml
 | `asset` | 補充到 `host_asset_info` 的資產中介資料（owner、environment、location 等） |
 | `labels` | 額外附加到輸出指標上的自訂 label |
 | `normalization` | 正規化時要忽略的檔案系統/網卡名稱規則 |
+| `gpu` | 本機 GPU 自動採集；預設啟用，無需設定作業系統或顯卡廠商 |
 
 ## 端點
 
@@ -93,8 +94,9 @@ python -m host_metrics_normalizer --config ./config.yml
 | `/healthz` | 服務健康檢查（JSON） |
 | `/debug/raw` | 手動排查：最近一次原始 exporter 資料 |
 | `/debug/normalized` | 手動排查：正規化後的中間資料 |
+| `/debug/gpu` | 手動排查：本次 GPU 採集到的裝置資料 |
 
-`/debug/*` 兩個端點受 `server.debug_enabled` 控制，關閉時回傳 404；根路徑 `/` 會 302 導向 `/metrics`。
+所有 `/debug/*` 端點受 `server.debug_enabled` 控制，關閉時回傳 404；根路徑 `/` 會 302 導向 `/metrics`。
 
 ## 指標
 

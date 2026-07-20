@@ -41,11 +41,17 @@ _METRIC_HELP = {
     "host_network_speed_bits": "Normalized host network interface speed in bits per second",
     "host_uptime_seconds": "Normalized host uptime in seconds",
     "host_gpu_info": "Normalized GPU device information",
+    "host_gpu_collection_up": "Whether GPU collection completed successfully",
+    "host_gpu_devices_total": "Number of detected GPU devices",
+    "host_gpu_collection_errors_total": "Total number of GPU collection errors",
+    "host_gpu_scrape_duration_seconds": "GPU collection duration in seconds",
+    "host_gpu_metric_available": "Whether a normalized GPU metric is available for the device",
     "host_gpu_memory_total_bytes": "Normalized host GPU dedicated video memory total in bytes",
     "host_gpu_memory_used_bytes": "Normalized host GPU dedicated memory usage in bytes",
     "host_gpu_memory_usage_percent": "Normalized host GPU memory usage percentage",
     "host_gpu_utilization_percent": "Normalized host GPU utilization percentage",
     "host_gpu_temperature_celsius": "Normalized host GPU temperature in degrees Celsius (Linux only)",
+    "host_gpu_power_watts": "Normalized host GPU power draw in watts",
 }
 
 _COUNTER_METRICS = {
@@ -57,6 +63,7 @@ _COUNTER_METRICS = {
     "host_network_transmit_bytes_total",
     "host_network_receive_errors_total",
     "host_network_transmit_errors_total",
+    "host_gpu_collection_errors_total",
 }
 
 _ASSET_LABELS = (

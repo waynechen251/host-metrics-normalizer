@@ -44,6 +44,7 @@ def test_amd_card_with_full_sysfs_data(tmp_path):
     assert by_name["host_gpu_info"].label_dict() == {
         "host": "host-a",
         "gpu": "0",
+        "vendor": "amd",
         "name": "Navi 10 [Radeon RX 5700 XT]",
         "device_id": "1002:73df",
     }

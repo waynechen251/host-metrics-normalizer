@@ -176,4 +176,8 @@ host_network_transmit_bytes_total
 
 ### 10.4 GPU 不屬於本節的 mapping registry
 
-`host_gpu_*`(§9.11)刻意**不**放進 §10.1/§10.2 的 exact-version registry,也不在 `normalizer/windows_exporter/`、`normalizer/node_exporter/` 任何版本檔案裡查找 `windows_gpu_*`/等效的 node_exporter 來源指標——早期版本確實這樣做過(從 `windows_gpu_*` mapping 而來),但因為資料不穩定(windows_exporter 的 `gpu` collector 是選用、僅兩個版本支援;node_exporter 完全沒有對應 collector)已經整個移除,改由 normalizer 自行呼叫本機 OS API 採集,與來源 exporter 版本完全脫鉤。之後新增 windows_exporter/node_exporter 版本支援時,**不要**把 GPU mapping 加回任何版本檔案;GPU 的實作細節見 `docs/metrics.gpu.md` 與 `src/host_metrics_normalizer/gpu/`。
+`host_gpu_*`(§9.11)刻意**不**放進 §10.1/§10.2 的 exact-version registry,也不在 `normalizer/windows_exporter/`、`normalizer/node_exporter/` 任何版本檔案裡查找 `windows_gpu_*`/等效的 node_exporter 來源指標——早期版本確實這樣做過(從 `windows_gpu_*` mapping 而來),但因為資料不穩定(windows_exporter 的 `gpu` collector 是選用、僅兩個版本支援;node_exporter 完全沒有對應 collector)已經整個移除,改由 normalizer 自行採集,與來源 exporter 版本完全脫鉤。
+
+GPU 採集依「每一欄位」合併，不得因某一 backend 或欄位失敗而丟棄整張裝置。優先順序為：Windows NVIDIA `NVML → WMI/PDH`、Windows AMD `ADLX（後續）→ WMI/PDH`、Windows Intel `Level Zero（後續）→ WMI/PDH`；Linux NVIDIA `NVML → DRM/sysfs`、Linux AMD `amdgpu sysfs → AMD SMI（後續）`、Linux Intel `Level Zero（後續）→ DRM/sysfs`。合併鍵優先使用 PCI ID/UUID/LUID，禁止以列舉位置作為跨介面裝置對應依據。
+
+之後新增 windows_exporter/node_exporter 版本支援時,**不要**把 GPU mapping 加回任何版本檔案;GPU 的實作細節見 `docs/metrics.gpu.md` 與 `src/host_metrics_normalizer/gpu/`。

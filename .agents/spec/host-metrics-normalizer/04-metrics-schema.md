@@ -219,15 +219,30 @@ host_uptime_seconds{host="srv-app-01"} 1234567
 
 ### 9.11 GPU
 
-與 §9.1–§9.10 不同：`host_gpu_*` **不是**由來源 exporter 的指標正規化而來，而是 normalizer 自行呼叫本機 OS 原生 API 採集(Windows：WMI + Performance Counters；Linux：sysfs),完全獨立於 `source_exporter` 是否抓取成功。詳見 [05-mapping-rules.md](05-mapping-rules.md) 與 `docs/metrics.gpu.md`。
+與 §9.1–§9.10 不同：`host_gpu_*` **不是**由來源 exporter 的指標正規化而來，而是 normalizer 自行採集。本機會自動選擇可用的 OS 與廠商介面（Windows：WMI/PDH，Linux：DRM/sysfs；NVIDIA：NVML），完全獨立於 `source_exporter` 是否抓取成功。Grafana 僅查詢 `host_gpu_*`，不得依 OS、廠商或採集 backend 分支。
 
 ```text
-host_gpu_info{host="srv-app-01", gpu="0", name="NVIDIA GeForce RTX 3080", device_id="10de:1b81"} 1
+host_gpu_collection_up{host="srv-app-01"} 1
+host_gpu_devices_total{host="srv-app-01"} 1
+host_gpu_info{host="srv-app-01", gpu="0", vendor="nvidia", name="NVIDIA GeForce RTX 3080", device_id="10de:1b81"} 1
 host_gpu_memory_total_bytes{host="srv-app-01", gpu="0"} 10737418240
 host_gpu_memory_used_bytes{host="srv-app-01", gpu="0"} 2147483648
 host_gpu_memory_usage_percent{host="srv-app-01", gpu="0"} 20.0
 host_gpu_utilization_percent{host="srv-app-01", gpu="0"} 42.5
 host_gpu_temperature_celsius{host="srv-app-01", gpu="0"} 65.0
+host_gpu_metric_available{host="srv-app-01", gpu="0", metric="power"} 0
 ```
 
-`host_gpu_temperature_celsius` 僅 Linux 輸出;Windows 無廠商中立的溫度 API，完全不會出現此系列。由 `gpu.enabled`(預設 `true`)控制是否啟用整組採集。
+必要的 fleet 狀態指標：
+
+| Metric | Labels | 語意 |
+|---|---|---|
+| `host_gpu_collection_up` | `host` | 本次 GPU 採集是否成功執行；沒有 GPU 時仍為 `1` |
+| `host_gpu_devices_total` | `host` | 偵測到的 GPU 數量 |
+| `host_gpu_collection_errors_total` | `host` | GPU 採集失敗累計次數 |
+| `host_gpu_scrape_duration_seconds` | `host` | 本次 GPU 採集耗時 |
+| `host_gpu_metric_available` | `host`,`gpu`,`metric` | 固定能力集合（`utilization`、`memory`、`temperature`、`power`）是否可取得；Grafana 顯示 `N/A`，不得補為 0 |
+
+`host_gpu_info` 的 `vendor` 固定為 `nvidia`、`amd`、`intel` 或 `unknown`；`device_id` 一律為小寫 PCI `vendor:device` 格式。所有動態 GPU 指標只有 `host`,`gpu` labels，不加 OS、廠商與 backend labels。
+
+`host_gpu_memory_*` 只表示 dedicated/device-local memory；內顯或不提供 dedicated memory 的裝置不輸出該值，並以 `host_gpu_metric_available{metric="memory"} 0` 表示。`gpu.enabled`（預設 `true`）控制整組採集。

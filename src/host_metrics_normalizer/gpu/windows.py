@@ -42,6 +42,12 @@ VramReader = Callable[[int], "int | None"]
 _DISPLAY_CLASS_KEY = r"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
 _VEN_DEV_RE = re.compile(r"VEN_[0-9A-Fa-f]{4}&DEV_[0-9A-Fa-f]{4}")
 _PHYS_RE = re.compile(r"phys_(?P<phys>\d+)")
+_VENDOR_NAMES = {
+    "10de": "nvidia",
+    "1002": "amd",
+    "1022": "amd",
+    "8086": "intel",
+}
 
 # Confirmed empirically against a real Windows 10/11 host via `win32pdh.EnumObjects`:
 # "GPU Engine" and "GPU Adapter Memory" are standard WDDM performance-counter objects
@@ -161,10 +167,13 @@ def collect(
             name = str(adapter.get("Name") or "")
             device_id = _extract_device_id(str(adapter.get("PNPDeviceID") or ""))
             total = reader(position)
+        vendor = _vendor_from_device_id(device_id)
 
         series.append(
             NormalizedSeries.from_mapping(
-                "host_gpu_info", 1.0, {"host": host, "gpu": gpu, "name": name, "device_id": device_id}
+                "host_gpu_info",
+                1.0,
+                {"host": host, "gpu": gpu, "vendor": vendor, "name": name, "device_id": device_id},
             )
         )
         if total is not None and total > 0:
@@ -217,8 +226,13 @@ def _group_by_phys(
 def _extract_device_id(pnp_device_id: str) -> str:
     match = _VEN_DEV_RE.search(pnp_device_id)
     if match:
-        return f"PCI\\{match.group(0)}"
-    return pnp_device_id
+        vendor_device = match.group(0).upper().replace("VEN_", "").replace("&DEV_", ":")
+        return vendor_device.lower()
+    return ""
+
+
+def _vendor_from_device_id(device_id: str) -> str:
+    return _VENDOR_NAMES.get(device_id.split(":", 1)[0].lower(), "unknown")
 
 
 def _wmi_query(wql: str) -> list[dict]:

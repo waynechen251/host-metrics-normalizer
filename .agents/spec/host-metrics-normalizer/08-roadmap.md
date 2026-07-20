@@ -67,6 +67,14 @@
 4. NIC speed 與 link status。
 5. VM / hypervisor detection。
 
+### Phase 8: Fleet GPU normalization
+
+1. GPU collection health、device count 與能力指標。
+2. 統一 `vendor` / PCI `device_id` 與跨 backend 裝置合併。
+3. NVIDIA NVML（Windows/Linux）與 OS fallback。
+4. Intel Level Zero、AMD ADLX / AMD SMI 的選用 enrichment。
+5. Grafana Fleet GPU Overview，不得依 OS 或廠商使用不同 PromQL。
+
 ## 18. MVP 驗收標準
 
 MVP 必須達成：

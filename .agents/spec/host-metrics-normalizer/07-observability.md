@@ -31,6 +31,7 @@ scrape_configs:
 7. Network
 8. Exporter Health
 9. Normalizer Health
+10. Fleet GPU Overview
 
 ### 13.2 建議 Variables
 
@@ -39,6 +40,7 @@ $environment
 $role
 $location
 $host
+$vendor
 ```
 
 ### 13.3 查詢範例
@@ -79,6 +81,20 @@ Network：
 rate(host_network_receive_bytes_total{host="$host"}[5m])
 rate(host_network_transmit_bytes_total{host="$host"}[5m])
 ```
+
+GPU fleet 使用率（不依 OS 或廠商分支）：
+
+```promql
+host_gpu_utilization_percent{host=~"$host"}
+```
+
+GPU 採集狀態：
+
+```promql
+host_gpu_collection_up{host=~"$host"}
+```
+
+GPU 不支援特定感測值時，dashboard 必須依 `host_gpu_metric_available` 顯示 `N/A`；不得將缺席 series 顯示或運算為 0。
 
 ## 14. 告警建議
 
@@ -135,4 +151,10 @@ Filesystem：
 
 ```promql
 host_filesystem_usage_percent > 90
+```
+
+GPU 採集失敗：
+
+```promql
+host_gpu_collection_up == 0
 ```

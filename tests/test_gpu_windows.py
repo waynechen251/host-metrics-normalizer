@@ -47,11 +47,11 @@ def test_group_by_phys_ignores_unmatched_instance_names():
 
 def test_extract_device_id_parses_ven_dev():
     pnp_id = r"PCI\VEN_10DE&DEV_1B81&SUBSYS_12345678&REV_A1\4&abcd"
-    assert gpu_windows._extract_device_id(pnp_id) == "PCI\\VEN_10DE&DEV_1B81"
+    assert gpu_windows._extract_device_id(pnp_id) == "10de:1b81"
 
 
 def test_extract_device_id_falls_back_to_raw_string_when_unmatched():
-    assert gpu_windows._extract_device_id("not-a-pnp-id") == "not-a-pnp-id"
+    assert gpu_windows._extract_device_id("not-a-pnp-id") == ""
 
 
 def test_collect_first_sample_has_no_utilization_yet():
@@ -68,8 +68,9 @@ def test_collect_first_sample_has_no_utilization_yet():
     assert by_name["host_gpu_info"].label_dict() == {
         "host": "host-a",
         "gpu": "0",
+        "vendor": "nvidia",
         "name": "NVIDIA GeForce RTX 3080",
-        "device_id": "PCI\\VEN_10DE&DEV_1B81",
+        "device_id": "10de:1b81",
     }
     assert by_name["host_gpu_memory_total_bytes"].value == 10737418240.0
     assert by_name["host_gpu_memory_used_bytes"].value == 1073741824.0

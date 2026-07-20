@@ -23,6 +23,12 @@ _DRIVER_TO_VENDOR_HEX = {
     "i915": "8086",
     "xe": "8086",
 }
+_VENDOR_NAMES = {
+    "10de": "nvidia",
+    "1002": "amd",
+    "1022": "amd",
+    "8086": "intel",
+}
 
 
 def collect(
@@ -53,7 +59,13 @@ def collect(
             NormalizedSeries.from_mapping(
                 "host_gpu_info",
                 1.0,
-                {"host": host, "gpu": gpu, "name": name, "device_id": f"{vendor_hex}:{device_hex}"},
+                {
+                    "host": host,
+                    "gpu": gpu,
+                    "vendor": _VENDOR_NAMES.get(vendor_hex, "unknown"),
+                    "name": name,
+                    "device_id": f"{vendor_hex}:{device_hex}",
+                },
             )
         )
 
